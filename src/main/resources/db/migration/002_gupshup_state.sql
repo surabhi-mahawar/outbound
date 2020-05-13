@@ -2,7 +2,7 @@ create table gupshup_state(
 	id BIGSERIAL PRIMARY KEY NOT NULL,
 	phone_no VARCHAR(15) NOT NULL,
 	state VARCHAR(2000) NOT NULL,
-	updated_at timestamp without time zone
+	updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
