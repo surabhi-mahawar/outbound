@@ -1,5 +1,6 @@
 package com.samagra.Request;
 
+import com.samagra.Response.InboundMessageResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;

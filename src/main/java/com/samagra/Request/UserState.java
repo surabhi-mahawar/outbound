@@ -14,9 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-@Embeddable
 public class UserState {
-  private String phoneno;
+  private String phoneNo;
   private HashMap<String, String> questions;
-  
 }

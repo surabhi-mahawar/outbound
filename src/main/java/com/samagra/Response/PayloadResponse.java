@@ -1,7 +1,9 @@
-package com.samagra.Request;
+package com.samagra.Response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.samagra.Enums.PayLoadType;
+import com.samagra.Request.InboundMessagePayload;
+import com.samagra.Request.Sender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

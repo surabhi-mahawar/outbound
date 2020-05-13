@@ -1,4 +1,4 @@
-package com.samagra.Request;
+package com.samagra.Response;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonProperty;

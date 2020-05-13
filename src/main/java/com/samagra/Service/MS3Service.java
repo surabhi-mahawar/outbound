@@ -1,20 +1,25 @@
 package com.samagra.Service;
 
+import java.util.HashMap;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samagra.Entity.GupshupMessageEntity;
 import com.samagra.Entity.GupshupStateEntity;
 import com.samagra.Repository.MessageRepository;
 import com.samagra.Repository.StateRepository;
-import com.samagra.Request.InboundMessageResponse;
 import com.samagra.Request.MS3Request;
-import com.samagra.Request.MS3Response;
 import com.samagra.Request.MessageRequest;
 import com.samagra.Request.UserState;
+import com.samagra.Response.InboundMessageResponse;
+import com.samagra.Response.MS3Response;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -24,13 +29,14 @@ public class MS3Service {
   private RestTemplate restTemplate;
 
   @Autowired
-  StateRepository stateRepo;
+  private StateRepository stateRepo;
 
   @Autowired
-  MessageRepository msgRepo;
+  private MessageRepository msgRepo;
 
 
-  public void processKafkaInResponse(InboundMessageResponse value) {
+  public void processKafkaInResponse(InboundMessageResponse value)
+      throws JsonMappingException, JsonProcessingException {
     MS3Request ms3Request = prapareMS3Request(value);
 
     HttpEntity<MS3Request> request = new HttpEntity<>(ms3Request);
@@ -48,17 +54,24 @@ public class MS3Service {
     } else {
       MessageRequest outBoundMessageRequest = ms3Response.getBody().getMessageRequest();
       // api call to gupshup.
-
     }
-
   }
 
 
-  private MS3Request prapareMS3Request(InboundMessageResponse value) {
-    UserState userState = null;
+  private MS3Request prapareMS3Request(InboundMessageResponse value)
+      throws JsonMappingException, JsonProcessingException {
+    UserState userState = new UserState();
+
     GupshupStateEntity stateEntity = stateRepo.findByPhoneNo(value.getPayload().getPhone());
     if (stateEntity != null) {
-      userState = stateEntity.getState();
+      JSONObject jsonObject = new JSONObject(stateEntity.getState());
+      userState.setPhoneNo(jsonObject.getString("phone_no"));
+      JSONObject mapObject = jsonObject.getJSONObject("questions");
+
+      HashMap<String, String> result =
+          new ObjectMapper().readValue(mapObject.toString(), HashMap.class);
+      System.out.println(result);
+      userState.setQuestions(result);
     }
     MS3Request ms3Request = new MS3Request();
     ms3Request.setUserState(userState);
@@ -86,7 +99,7 @@ public class MS3Service {
   private void replaceUserState(MS3Response body) {
     UserState incomingState = body.getUserState();
     GupshupStateEntity saveEntity = new GupshupStateEntity();
-    saveEntity.setState(incomingState);
+    saveEntity.setState(incomingState.toString());
     saveEntity.setPhoneNo(body.getMessageRequest().getPayload().getPhone());
 
     // save state and response to db

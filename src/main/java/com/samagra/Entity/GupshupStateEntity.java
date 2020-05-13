@@ -29,6 +29,5 @@ public class GupshupStateEntity {
   private String phoneNo;
 
   @Column(nullable = false, name = "state")
-  @Embedded
-  private UserState state;
+  private String state;
 }

@@ -1,5 +1,6 @@
-package com.samagra.Request;
+package com.samagra.Response;
 
+import com.samagra.Request.MessageRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import lombok.Setter;
 @Setter
 public class MS3Response {
   private boolean isLastResponse;
-  private UserState userState;
+  private String userState;   //xml string 
+//  private UserState userState;
   private MessageRequest messageRequest;
 }
