@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import com.samagra.Enums.MessageType;
 import com.samagra.Enums.PayLoadType;
-import com.samagra.Request.InboundMessageResponse;
 import com.samagra.Request.MessageRequest;
-import com.samagra.Request.PayloadResponse;
 import com.samagra.Request.Sender;
+import com.samagra.Response.InboundMessageResponse;
+import com.samagra.Response.PayloadResponse;
 
 @Component
 public class GupshupService {

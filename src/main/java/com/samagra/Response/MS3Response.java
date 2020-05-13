@@ -15,6 +15,5 @@ import lombok.Setter;
 public class MS3Response {
   private boolean isLastResponse;
   private String userState;   //xml string 
-//  private UserState userState;
   private MessageRequest messageRequest;
 }

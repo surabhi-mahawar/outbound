@@ -1,6 +1,10 @@
 package com.samagra.Service;
 
+import java.io.StringReader;
 import java.util.HashMap;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -36,7 +40,7 @@ public class MS3Service {
 
 
   public void processKafkaInResponse(InboundMessageResponse value)
-      throws JsonMappingException, JsonProcessingException {
+      throws JsonMappingException, JsonProcessingException, JAXBException {
     MS3Request ms3Request = prapareMS3Request(value);
 
     HttpEntity<MS3Request> request = new HttpEntity<>(ms3Request);
@@ -96,8 +100,10 @@ public class MS3Service {
   }
 
 
-  private void replaceUserState(MS3Response body) {
-    UserState incomingState = body.getUserState();
+  private void replaceUserState(MS3Response body) throws JAXBException {
+    String incomingState = body.getUserState();
+    UserState userState = new UserState();
+    userState = xmlStringToObject(incomingState, userState);
     GupshupStateEntity saveEntity = new GupshupStateEntity();
     saveEntity.setState(incomingState.toString());
     saveEntity.setPhoneNo(body.getMessageRequest().getPayload().getPhone());
@@ -107,5 +113,10 @@ public class MS3Service {
 
   }
 
-
+  private <T> T xmlStringToObject(String input, T obj) throws JAXBException {
+    JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass());
+    Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+    T employee = (T) jaxbUnmarshaller.unmarshal(new StringReader(input));
+    return employee;
+  }
 }
