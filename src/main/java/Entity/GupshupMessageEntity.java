@@ -1,6 +1,5 @@
 package Entity;
 
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,18 +17,24 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @NoArgsConstructor
-@Table(name = "gupshup_state")
-public class GupshupStateEntity {
+@Table(name = "gupshup_message")
+public class GupshupMessageEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-
+  
   @Column(nullable = false, name = "phone_no")
   private String phoneNo;
+  
+  @Column(nullable = false, name = "msg_id")
+  private String msgId;
 
-  @Column(nullable = false, name = "state")
-  private UserState state;
+  @Column(nullable = false, name = "message")
+  private String message;
 
   @Column(name = "updated_at")
   private Long updatedAt;
+  
+  @Column(name = "is_last_response")
+  private boolean isLastResponse;
 }
