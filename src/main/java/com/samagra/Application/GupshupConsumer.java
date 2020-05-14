@@ -27,7 +27,7 @@ public class GupshupConsumer {
 
   @RequestMapping(value = "/post", method = RequestMethod.POST)
   public void main(String arg[])
-      throws JsonMappingException, JsonProcessingException, JAXBException {
+      throws Exception {
     String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
         + "<messageResponse>\n" + "    <app>DemoApp</app>\n" + "    <payload>\n"
         + "        <id>ABEGkYaYVSEEAhAL3SLAWwHKeKrt6s3FKB0c</id>\n" + "        <payload>\n"
@@ -43,7 +43,7 @@ public class GupshupConsumer {
 
   // @KafkaListener(id = "message", topics = "gs-incoming-message")
   public void consumeMessage(String message)
-      throws JsonMappingException, JsonProcessingException, JAXBException {
+      throws Exception {
 
     XmlMapper xmlMapper = new XmlMapper();
     InboundMessageResponse value = xmlMapper.readValue(message, InboundMessageResponse.class);

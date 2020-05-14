@@ -10,7 +10,11 @@ import javax.xml.bind.Unmarshaller;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -31,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MS3Service {
   private final String REQUEST_URI = "https://localhost";
   private RestTemplate restTemplate;
+  private final String GUPSHUP_OUTBOUND = "https://api.gupshup.io/sm/api/v1/msg";
 
   @Autowired
   private StateRepository stateRepo;
@@ -40,7 +45,7 @@ public class MS3Service {
 
 
   public void processKafkaInResponse(InboundMessageResponse value)
-      throws JsonMappingException, JsonProcessingException, JAXBException {
+      throws Exception {
     MS3Request ms3Request = prapareMS3Request(value);
 
     HttpEntity<MS3Request> request = new HttpEntity<>(ms3Request);
@@ -71,10 +76,19 @@ public class MS3Service {
       // call to odk
     } else {
       MessageRequest outBoundMessageRequest = ms3Response.getMessageRequest();
-      // api call to gupshup.
+      HttpEntity<MessageRequest> outBound = new HttpEntity<>(outBoundMessageRequest,getVerifyHttpHeader());
+       restTemplate.exchange(GUPSHUP_OUTBOUND, HttpMethod.POST, request, MS3Response.class);
     }
   }
 
+  private HttpHeaders getVerifyHttpHeader() throws Exception {
+    LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+    map.add(HttpHeaders.CACHE_CONTROL,"no-cache");
+    map.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+    map.add("apikey","");
+    return new HttpHeaders(map);
+  }
+  
 
   private MS3Request prapareMS3Request(InboundMessageResponse value)
       throws JsonMappingException, JsonProcessingException, JAXBException {
@@ -142,9 +156,7 @@ public class MS3Service {
     } else {
       saveEntity.setState(incomingState);
     }
-    // save state and response to db
     stateRepo.save(saveEntity);
-
   }
 
   private UserState xmlStringToObject(String input) throws JAXBException {
