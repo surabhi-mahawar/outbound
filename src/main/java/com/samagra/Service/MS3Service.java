@@ -107,19 +107,24 @@ public class MS3Service {
   }
 
 
-  private void appendNewResponse(MS3Response body) {
+  private void appendNewResponse(MS3Response body) throws JsonProcessingException {
     GupshupMessageEntity msgEntity =
         msgRepo.findByPhoneNo(body.getMessageRequest().getPayload().getSource());
+    ObjectMapper mapper = new ObjectMapper();
+    String json = null;
     if (msgEntity == null) {
       msgEntity = new GupshupMessageEntity();
-      msgEntity.setMessage(body.getMessageRequest().toString());
+      json = mapper.writeValueAsString(body.getMessageRequest());
+      msgEntity.setMessage(json);
       msgEntity.setPhoneNo(body.getMessageRequest().getPayload().getSource());
       msgEntity.setLastResponse(body.isLastResponse());
       msgEntity.setMsgId(body.getMessageRequest().getPayload().getId());
     } else {
       msgEntity.setPhoneNo(body.getMessageRequest().getPayload().getSource());
       msgEntity.setLastResponse(body.isLastResponse());
-      msgEntity.setMessage(msgEntity.getMessage() + body.getMessageRequest());
+
+      json = mapper.writeValueAsString(body.getMessageRequest());
+      msgEntity.setMessage(msgEntity.getMessage() + json);
       msgEntity.setMsgId(body.getMessageRequest().getPayload().getId());
     }
     msgRepo.save(msgEntity);
