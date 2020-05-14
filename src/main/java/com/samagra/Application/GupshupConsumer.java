@@ -1,6 +1,7 @@
 package com.samagra.Application;
 
 import java.util.HashMap;
+import javax.xml.bind.JAXBException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.samagra.Request.InboundMessageResponse;
+import com.samagra.Response.InboundMessageResponse;
 import com.samagra.Service.MS3Service;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,7 +26,8 @@ public class GupshupConsumer {
   private MS3Service ms3Service;
 
   @RequestMapping(value = "/post", method = RequestMethod.POST)
-  public void main(@RequestBody HashMap<String,Boolean> map) throws JsonMappingException, JsonProcessingException {
+  public void main(String arg[])
+      throws JsonMappingException, JsonProcessingException, JAXBException {
     String message = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
         + "<messageResponse>\n" + "    <app>DemoApp</app>\n" + "    <payload>\n"
         + "        <id>ABEGkYaYVSEEAhAL3SLAWwHKeKrt6s3FKB0c</id>\n" + "        <payload>\n"
@@ -36,17 +38,16 @@ public class GupshupConsumer {
         + "    <timestamp>1580227766370</timestamp>\n" + "    <type>userevent</type>\n"
         + "    <version>2</version>\n" + "</messageResponse>\n" + "\n" + "";
 
-    System.out.println(map.get("question1").toString());
     consumeMessage(message);
   }
 
   // @KafkaListener(id = "message", topics = "gs-incoming-message")
-  public void consumeMessage(String message) throws JsonMappingException, JsonProcessingException {
+  public void consumeMessage(String message)
+      throws JsonMappingException, JsonProcessingException, JAXBException {
 
     XmlMapper xmlMapper = new XmlMapper();
     InboundMessageResponse value = xmlMapper.readValue(message, InboundMessageResponse.class);
     log.info("Consumer got message: {}", value.getPayload().getSender().getName());
-
     ms3Service.processKafkaInResponse(value);
   }
 

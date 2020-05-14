@@ -13,6 +13,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MS3Request {
-  private UserState userState;
+  private String userState;
   private InboundMessageResponse inBoundResponse;
 }

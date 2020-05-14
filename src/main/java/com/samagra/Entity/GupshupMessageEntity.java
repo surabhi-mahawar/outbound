@@ -26,12 +26,12 @@ public class GupshupMessageEntity {
   @Column(nullable = false, name = "phone_no")
   private String phoneNo;
   
-  @Column(nullable = false, name = "msg_id")
+  @Column(name = "msg_id")
   private String msgId;
 
   @Column(nullable = false, name = "message")
   private String message;
 
-  @Column(name = "is_last_response")
+  @Column(name = "is_last_message")
   private boolean isLastResponse;
 }

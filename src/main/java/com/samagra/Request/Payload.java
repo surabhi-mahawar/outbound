@@ -22,5 +22,4 @@ public class Payload {
   private InboundMessagePayload payload;
   @JsonProperty
   private Sender sender;
-  private String phone;
 }

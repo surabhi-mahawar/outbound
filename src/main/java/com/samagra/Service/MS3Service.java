@@ -1,15 +1,15 @@
 package com.samagra.Service;
 
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.HashMap;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -45,31 +45,45 @@ public class MS3Service {
 
     HttpEntity<MS3Request> request = new HttpEntity<>(ms3Request);
 
-    ResponseEntity<MS3Response> ms3Response =
-        restTemplate.exchange(REQUEST_URI, HttpMethod.POST, request, MS3Response.class);
+    // ResponseEntity<MS3Response> ms3Response =
+    // restTemplate.exchange(REQUEST_URI, HttpMethod.POST, request, MS3Response.class);
 
+    String str = new String("{\n" + "   \"lastResponse\": true, \"messageRequest\": {\n"
+        + "        \"app\": \"DemoApp\",\n" + "        \"timestamp\": 1580227766370,\n"
+        + "        \"version\": 2,\n" + "        \"type\": \"message\",\n"
+        + "        \"payload\": {\n"
+        + "            \"id\": \"ABEGkYaYVSEEAhAL3SLAWwHKeKrt6s3FKB0c\",\n"
+        + "            \"source\": \"918x98xx21x4\",\n" + "            \"type\": \"text\",\n"
+        + "            \"payload\": {\n" + "                \"text\": \"Hi\"\n" + "            },\n"
+        + "            \"sender\": {\n" + "                \"phone\": \"918x98xx21x4\",\n"
+        + "                \"name\": \"Smit\"\n" + "            }\n" + "        }\n" + "    },\n"
+        + "    \"userState\": \"<userstate><phoneno>9718908699</phoneno><questions><question1>value</question1></questions></userstate>\"\n"
+        + "\n" + "}");
 
-    replaceUserState(ms3Response.getBody());
-    appendNewResponse(ms3Response.getBody());
+    ObjectMapper objectMapper = new ObjectMapper();
+    MS3Response ms3Response = objectMapper.readValue(str, MS3Response.class);
 
-    boolean isLastResponse = ms3Response.getBody().isLastResponse();
+    replaceUserState(ms3Response);
+    appendNewResponse(ms3Response);
+
+    boolean isLastResponse = ms3Response.isLastResponse();
     if (isLastResponse) {
       // call to odk
     } else {
-      MessageRequest outBoundMessageRequest = ms3Response.getBody().getMessageRequest();
+      MessageRequest outBoundMessageRequest = ms3Response.getMessageRequest();
       // api call to gupshup.
     }
   }
 
 
   private MS3Request prapareMS3Request(InboundMessageResponse value)
-      throws JsonMappingException, JsonProcessingException {
+      throws JsonMappingException, JsonProcessingException, JAXBException {
     UserState userState = new UserState();
 
     GupshupStateEntity stateEntity = stateRepo.findByPhoneNo(value.getPayload().getPhone());
     if (stateEntity != null) {
       JSONObject jsonObject = new JSONObject(stateEntity.getState());
-      userState.setPhoneNo(jsonObject.getString("phone_no"));
+      userState.setPhoneno(jsonObject.getString("phone_no"));
       JSONObject mapObject = jsonObject.getJSONObject("questions");
 
       HashMap<String, String> result =
@@ -77,8 +91,17 @@ public class MS3Service {
       System.out.println(result);
       userState.setQuestions(result);
     }
+
     MS3Request ms3Request = new MS3Request();
-    ms3Request.setUserState(userState);
+    JAXBContext context = JAXBContext.newInstance(UserState.class);
+
+    Marshaller marshaller = context.createMarshaller();
+
+    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    StringWriter sw = new StringWriter();
+
+    marshaller.marshal(userState, sw);
+    ms3Request.setUserState(sw.toString());
     ms3Request.setInBoundResponse(value);
     return ms3Request;
   }
@@ -86,15 +109,18 @@ public class MS3Service {
 
   private void appendNewResponse(MS3Response body) {
     GupshupMessageEntity msgEntity =
-        msgRepo.findByPhoneNo(body.getMessageRequest().getPayload().getPhone());
+        msgRepo.findByPhoneNo(body.getMessageRequest().getPayload().getSource());
     if (msgEntity == null) {
       msgEntity = new GupshupMessageEntity();
       msgEntity.setMessage(body.getMessageRequest().toString());
-      msgEntity.setPhoneNo(body.getMessageRequest().getPayload().getPhone());
+      msgEntity.setPhoneNo(body.getMessageRequest().getPayload().getSource());
       msgEntity.setLastResponse(body.isLastResponse());
+      msgEntity.setMsgId(body.getMessageRequest().getPayload().getId());
     } else {
+      msgEntity.setPhoneNo(body.getMessageRequest().getPayload().getSource());
       msgEntity.setLastResponse(body.isLastResponse());
       msgEntity.setMessage(msgEntity.getMessage() + body.getMessageRequest());
+      msgEntity.setMsgId(body.getMessageRequest().getPayload().getId());
     }
     msgRepo.save(msgEntity);
   }
@@ -102,21 +128,24 @@ public class MS3Service {
 
   private void replaceUserState(MS3Response body) throws JAXBException {
     String incomingState = body.getUserState();
-    UserState userState = new UserState();
-    userState = xmlStringToObject(incomingState, userState);
-    GupshupStateEntity saveEntity = new GupshupStateEntity();
-    saveEntity.setState(incomingState.toString());
-    saveEntity.setPhoneNo(body.getMessageRequest().getPayload().getPhone());
-
+    GupshupStateEntity saveEntity =
+        stateRepo.findByPhoneNo(body.getMessageRequest().getPayload().getSource());
+    if (saveEntity == null) {
+      saveEntity = new GupshupStateEntity();
+      saveEntity.setState(incomingState);
+      saveEntity.setPhoneNo(body.getMessageRequest().getPayload().getSource());
+    } else {
+      saveEntity.setState(incomingState);
+    }
     // save state and response to db
     stateRepo.save(saveEntity);
 
   }
 
-  private <T> T xmlStringToObject(String input, T obj) throws JAXBException {
-    JAXBContext jaxbContext = JAXBContext.newInstance(obj.getClass());
+  private UserState xmlStringToObject(String input) throws JAXBException {
+    JAXBContext jaxbContext = JAXBContext.newInstance(UserState.class);
     Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-    T employee = (T) jaxbUnmarshaller.unmarshal(new StringReader(input));
+    UserState employee = (UserState) jaxbUnmarshaller.unmarshal(new StringReader(input));
     return employee;
   }
 }

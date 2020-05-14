@@ -12,12 +12,11 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
 @Setter
-@XmlRootElement
+@XmlRootElement(name = "userstate")
 public class UserState {
-  @XmlElement
-  private String phoneNo;
-  @XmlElement
+  @XmlElement(name = "phoneno")
+  private String phoneno;
+  @XmlElement(name = "questions")
   private HashMap<String, String> questions;
 }
