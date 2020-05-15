@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MS3Service {
   private final String REQUEST_URI = "https://localhost";
+  @Autowired
   private RestTemplate restTemplate;
   private final String GUPSHUP_OUTBOUND = "https://api.gupshup.io/sm/api/v1/msg";
 
@@ -72,12 +73,13 @@ public class MS3Service {
     appendNewResponse(ms3Response);
 
     boolean isLastResponse = ms3Response.isLastResponse();
+    isLastResponse = false;
     if (isLastResponse) {
       // call to odk
     } else {
       MessageRequest outBoundMessageRequest = ms3Response.getMessageRequest();
       HttpEntity<MessageRequest> outBound = new HttpEntity<>(outBoundMessageRequest,getVerifyHttpHeader());
-       restTemplate.exchange(GUPSHUP_OUTBOUND, HttpMethod.POST, request, MS3Response.class);
+       restTemplate.exchange(GUPSHUP_OUTBOUND, HttpMethod.POST, outBound, MS3Response.class);
     }
   }
 
@@ -85,7 +87,7 @@ public class MS3Service {
     LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
     map.add(HttpHeaders.CACHE_CONTROL,"no-cache");
     map.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
-    map.add("apikey","");
+    map.add("apikey","c2ed3ece4e7c40eac0af0e012866e090");
     return new HttpHeaders(map);
   }
   
