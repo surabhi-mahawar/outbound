@@ -1,75 +1,68 @@
 package com.samagra.Service;
 
-import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.samagra.Entity.GupshupMessageEntity;
 import com.samagra.Entity.GupshupStateEntity;
-import com.samagra.Repository.MessageRepository;
+import com.samagra.Factory.Provider;
+import com.samagra.Factory.ProviderFactory;
 import com.samagra.Repository.StateRepository;
-import com.samagra.Request.MS3Request;
-import com.samagra.Request.MessageRequest;
-import com.samagra.Request.UserState;
-import com.samagra.Response.InboundMessageResponse;
-import com.samagra.Response.MS3Response;
+import com.samagra.common.Request.MS3Request;
+import com.samagra.common.Request.UserState;
+import com.samagra.notification.Response.MS3Response;
+import com.samagra.notification.Response.MessageResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
 public class MS3Service {
-  private final String REQUEST_URI = "https://localhost";
-
-  @Autowired
-  private RestTemplate restTemplate;
-  
-  private final String GUPSHUP_OUTBOUND = "https://api.gupshup.io/sm/api/v1/msg";
+ 
+  @Value("${provider.list}")
+  private String providerList;
 
   @Autowired
   private StateRepository stateRepo;
 
   @Autowired
-  private MessageRepository msgRepo;
+  private Provider provider;
 
-  private List<HttpMessageConverter<?>> getMessageConverters() {
-    List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
-    converters.add(new MappingJackson2HttpMessageConverter());    return converters;
+  public void processKafkaInResponse(MessageResponse value) throws Exception {
+
+    MS3Response ms3Response = prepareMS3RequestAndGetResponse(value);
+
+    String[] providerArray = providerList.split(",");
+    for (int i = 0; i < providerArray.length; i++) {
+      provider = ProviderFactory.getProvider(providerArray[i]);
+      provider.processInBoundMessage(ms3Response, value);
+    }
+    
   }
 
-  public void processKafkaInResponse(InboundMessageResponse value)
-      throws Exception {
+
+  private MS3Response prepareMS3RequestAndGetResponse(MessageResponse value) throws Exception {
     MS3Request ms3Request = prapareMS3Request(value);
 
-    HttpEntity<MS3Request> request = new HttpEntity<>(ms3Request);
-
+    // HttpEntity<MS3Request> request = new HttpEntity<>(ms3Request);
+    //
     // ResponseEntity<MS3Response> ms3Response =
     // restTemplate.exchange(REQUEST_URI, HttpMethod.POST, request, MS3Response.class);
 
-    String str = new String("{\n" + "   \"lastResponse\": true, \"messageRequest\": {\n"
+    String str = new String("{\n" + "   \"lastResponse\": false, \"messageRequest\": {\n"
         + "        \"app\": \"DemoApp\",\n" + "        \"timestamp\": 1580227766370,\n"
         + "        \"version\": 2,\n" + "        \"type\": \"message\",\n"
         + "        \"payload\": {\n"
         + "            \"id\": \"ABEGkYaYVSEEAhAL3SLAWwHKeKrt6s3FKB0c\",\n"
-        + "            \"source\": \"918x98xx21x4\",\n" + "            \"type\": \"text\",\n"
+        + "            \"source\": \"917834811114\",\n"
+        + "             \"destination\": \"9718908699\",\n " + "            \"type\": \"text\",\n"
         + "            \"payload\": {\n" + "                \"text\": \"Hi\"\n" + "            },\n"
         + "            \"sender\": {\n" + "                \"phone\": \"9415787824\",\n"
         + "                \"name\": \"Smit\"\n" + "            }\n" + "        }\n" + "    },\n"
@@ -78,35 +71,10 @@ public class MS3Service {
 
     ObjectMapper objectMapper = new ObjectMapper();
     MS3Response ms3Response = objectMapper.readValue(str, MS3Response.class);
-
-    replaceUserState(ms3Response);
-    appendNewResponse(ms3Response);
-
-    boolean isLastResponse = ms3Response.isLastResponse();
-    isLastResponse = false;
-    if (isLastResponse) {
-      // call to odk
-    } else {
-      MessageRequest outBoundMessageRequest = ms3Response.getMessageRequest();
-      System.out.println(outBoundMessageRequest.getPayload());
-      HttpEntity<MessageRequest> outBound = new HttpEntity<>(outBoundMessageRequest, getVerifyHttpHeader());
-      restTemplate.setMessageConverters(getMessageConverters());
-      restTemplate.exchange(GUPSHUP_OUTBOUND, HttpMethod.POST, outBound, MS3Response.class);
-    }
+    return ms3Response;
   }
 
-  private HttpHeaders getVerifyHttpHeader() throws Exception {
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-    headers.add("Content-Type", MediaType.APPLICATION_FORM_URLENCODED.toString());
-    headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-    headers.add(HttpHeaders.CACHE_CONTROL,"no-cache");
-    headers.add("apikey","c2ed3ece4e7c40eac0af0e012866e090");
-    return headers;
-  }
-  
-
-  private MS3Request prapareMS3Request(InboundMessageResponse value)
+  private MS3Request prapareMS3Request(MessageResponse value)
       throws JsonMappingException, JsonProcessingException, JAXBException {
     UserState userState = new UserState();
 
@@ -118,7 +86,8 @@ public class MS3Service {
 
       HashMap<String, String> result =
           new ObjectMapper().readValue(mapObject.toString(), HashMap.class);
-      System.out.println(result);
+
+      log.info("db result entity {} ", result);
       userState.setQuestions(result);
     }
 
@@ -132,53 +101,8 @@ public class MS3Service {
 
     marshaller.marshal(userState, sw);
     ms3Request.setUserState(sw.toString());
-    ms3Request.setInBoundResponse(value);
+    ms3Request.setMessageResponse(value);
     return ms3Request;
   }
 
-
-  private void appendNewResponse(MS3Response body) throws JsonProcessingException {
-    GupshupMessageEntity msgEntity =
-        msgRepo.findByPhoneNo(body.getMessageRequest().getPayload().getSource());
-    ObjectMapper mapper = new ObjectMapper();
-    String json = null;
-    if (msgEntity == null) {
-      msgEntity = new GupshupMessageEntity();
-      json = mapper.writeValueAsString(body.getMessageRequest());
-      msgEntity.setMessage(json);
-      msgEntity.setPhoneNo(body.getMessageRequest().getPayload().getSource());
-      msgEntity.setLastResponse(body.isLastResponse());
-      msgEntity.setMsgId(body.getMessageRequest().getPayload().getId());
-    } else {
-      msgEntity.setPhoneNo(body.getMessageRequest().getPayload().getSource());
-      msgEntity.setLastResponse(body.isLastResponse());
-
-      json = mapper.writeValueAsString(body.getMessageRequest());
-      msgEntity.setMessage(msgEntity.getMessage() + json);
-      msgEntity.setMsgId(body.getMessageRequest().getPayload().getId());
-    }
-    msgRepo.save(msgEntity);
-  }
-
-
-  private void replaceUserState(MS3Response body) throws JAXBException {
-    String incomingState = body.getUserState();
-    GupshupStateEntity saveEntity =
-        stateRepo.findByPhoneNo(body.getMessageRequest().getPayload().getSource());
-    if (saveEntity == null) {
-      saveEntity = new GupshupStateEntity();
-      saveEntity.setState(incomingState);
-      saveEntity.setPhoneNo(body.getMessageRequest().getPayload().getSource());
-    } else {
-      saveEntity.setState(incomingState);
-    }
-    stateRepo.save(saveEntity);
-  }
-
-  private UserState xmlStringToObject(String input) throws JAXBException {
-    JAXBContext jaxbContext = JAXBContext.newInstance(UserState.class);
-    Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-    UserState employee = (UserState) jaxbUnmarshaller.unmarshal(new StringReader(input));
-    return employee;
-  }
 }
