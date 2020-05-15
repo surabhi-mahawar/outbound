@@ -34,8 +34,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MS3Service {
   private final String REQUEST_URI = "https://localhost";
+<<<<<<< Updated upstream
+=======
+  
+>>>>>>> Stashed changes
   @Autowired
   private RestTemplate restTemplate;
+  
   private final String GUPSHUP_OUTBOUND = "https://api.gupshup.io/sm/api/v1/msg";
 
   @Autowired
@@ -79,7 +84,12 @@ public class MS3Service {
     } else {
       MessageRequest outBoundMessageRequest = ms3Response.getMessageRequest();
       HttpEntity<MessageRequest> outBound = new HttpEntity<>(outBoundMessageRequest,getVerifyHttpHeader());
+<<<<<<< Updated upstream
        restTemplate.exchange(GUPSHUP_OUTBOUND, HttpMethod.POST, outBound, MS3Response.class);
+=======
+       restTemplate.exchange(GUPSHUP_OUTBOUND, HttpMethod.POST, outBound
+           , MS3Response.class);
+>>>>>>> Stashed changes
     }
   }
 
