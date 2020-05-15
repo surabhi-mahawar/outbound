@@ -44,9 +44,7 @@ public class MS3Service {
       provider = ProviderFactory.getProvider(providerArray[i]);
       provider.processInBoundMessage(ms3Response, value);
     }
-    
   }
-
 
   private MS3Response prepareMS3RequestAndGetResponse(MessageResponse value) throws Exception {
     MS3Request ms3Request = prapareMS3Request(value);
