@@ -48,7 +48,7 @@ public class GupshupService {
 
     PayloadResponse payload = new PayloadResponse();
     payload.setId(message.getPayload().getId());
-    payload.setPhone(message.getPayload().getPhone());
+    payload.setPhone(message.getPayload().getSource());
     payload.setType(PayLoadType.of(message.getPayload().getType()));
     payload.setPayload(message.getPayload().getPayload());
 
