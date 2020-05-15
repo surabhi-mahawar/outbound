@@ -2,7 +2,9 @@ package com.samagra.Service;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
@@ -13,6 +15,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -34,10 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class MS3Service {
   private final String REQUEST_URI = "https://localhost";
-<<<<<<< Updated upstream
-=======
-  
->>>>>>> Stashed changes
+
   @Autowired
   private RestTemplate restTemplate;
   
@@ -49,6 +50,10 @@ public class MS3Service {
   @Autowired
   private MessageRepository msgRepo;
 
+  private List<HttpMessageConverter<?>> getMessageConverters() {
+    List<HttpMessageConverter<?>> converters = new ArrayList<HttpMessageConverter<?>>();
+    converters.add(new MappingJackson2HttpMessageConverter());    return converters;
+  }
 
   public void processKafkaInResponse(InboundMessageResponse value)
       throws Exception {
@@ -66,7 +71,7 @@ public class MS3Service {
         + "            \"id\": \"ABEGkYaYVSEEAhAL3SLAWwHKeKrt6s3FKB0c\",\n"
         + "            \"source\": \"918x98xx21x4\",\n" + "            \"type\": \"text\",\n"
         + "            \"payload\": {\n" + "                \"text\": \"Hi\"\n" + "            },\n"
-        + "            \"sender\": {\n" + "                \"phone\": \"918x98xx21x4\",\n"
+        + "            \"sender\": {\n" + "                \"phone\": \"9415787824\",\n"
         + "                \"name\": \"Smit\"\n" + "            }\n" + "        }\n" + "    },\n"
         + "    \"userState\": \"<userstate><phoneno>9718908699</phoneno><questions><question1>value</question1></questions></userstate>\"\n"
         + "\n" + "}");
@@ -83,22 +88,21 @@ public class MS3Service {
       // call to odk
     } else {
       MessageRequest outBoundMessageRequest = ms3Response.getMessageRequest();
-      HttpEntity<MessageRequest> outBound = new HttpEntity<>(outBoundMessageRequest,getVerifyHttpHeader());
-<<<<<<< Updated upstream
-       restTemplate.exchange(GUPSHUP_OUTBOUND, HttpMethod.POST, outBound, MS3Response.class);
-=======
-       restTemplate.exchange(GUPSHUP_OUTBOUND, HttpMethod.POST, outBound
-           , MS3Response.class);
->>>>>>> Stashed changes
+      System.out.println(outBoundMessageRequest.getPayload());
+      HttpEntity<MessageRequest> outBound = new HttpEntity<>(outBoundMessageRequest, getVerifyHttpHeader());
+      restTemplate.setMessageConverters(getMessageConverters());
+      restTemplate.exchange(GUPSHUP_OUTBOUND, HttpMethod.POST, outBound, MS3Response.class);
     }
   }
 
   private HttpHeaders getVerifyHttpHeader() throws Exception {
-    LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-    map.add(HttpHeaders.CACHE_CONTROL,"no-cache");
-    map.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
-    map.add("apikey","c2ed3ece4e7c40eac0af0e012866e090");
-    return new HttpHeaders(map);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    headers.add("Content-Type", MediaType.APPLICATION_FORM_URLENCODED.toString());
+    headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+    headers.add(HttpHeaders.CACHE_CONTROL,"no-cache");
+    headers.add("apikey","c2ed3ece4e7c40eac0af0e012866e090");
+    return headers;
   }
   
 

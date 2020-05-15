@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 @EnableKafka
 @EnableAsync
 @EnableJpaRepositories("com.samagra")
-@EnableAutoConfiguration
 @EntityScan("com.samagra")
 @ComponentScan(basePackages = {"com.samagra.Application","com.samagra"})
 public class SamagraGupshupConsumerApplication {
