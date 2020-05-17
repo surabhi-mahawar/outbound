@@ -4,9 +4,9 @@ import com.samagra.Service.GupsShupWhatsappProviderService;
 
 public class ProviderFactory {
 
-  public static Provider getProvider(String provider) {
+  public static IProvider getProvider(String provider) {
     if (provider.equals("gupshup.whatsapp")) {
-      return new GupsShupWhatsappProviderService();
+      return (IProvider) new GupsShupWhatsappProviderService();
     }
     return null;
   }

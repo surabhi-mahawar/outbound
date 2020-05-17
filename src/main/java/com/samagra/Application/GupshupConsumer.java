@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.samagra.Service.MS3Service;
+import com.samagra.Service.OutBoundService;
 import com.samagra.notification.Response.MessageResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping(value = "/parse")
 public class GupshupConsumer {
   @Autowired
-  private MS3Service ms3Service;
+  private OutBoundService ms3Service;
 
   @KafkaListener(id = "message", topics = "${gupshup-incoming-message}")
   public void consumeMessage(String message) throws Exception {

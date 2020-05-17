@@ -7,14 +7,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samagra.Entity.GupshupStateEntity;
-import com.samagra.Factory.Provider;
-import com.samagra.Factory.ProviderFactory;
 import com.samagra.Repository.StateRepository;
 import com.samagra.common.Request.MS3Request;
 import com.samagra.common.Request.UserState;
@@ -22,31 +18,13 @@ import com.samagra.notification.Response.MS3Response;
 import com.samagra.notification.Response.MessageResponse;
 import lombok.extern.slf4j.Slf4j;
 
-@Service
 @Slf4j
-public class MS3Service {
- 
-  @Value("${provider.list}")
-  private String providerList;
+public class Ms3Service {
 
   @Autowired
   private StateRepository stateRepo;
 
-  @Autowired
-  private Provider provider;
-
-  public void processKafkaInResponse(MessageResponse value) throws Exception {
-
-    MS3Response ms3Response = prepareMS3RequestAndGetResponse(value);
-
-    String[] providerArray = providerList.split(",");
-    for (int i = 0; i < providerArray.length; i++) {
-      provider = ProviderFactory.getProvider(providerArray[i]);
-      provider.processInBoundMessage(ms3Response, value);
-    }
-  }
-
-  private MS3Response prepareMS3RequestAndGetResponse(MessageResponse value) throws Exception {
+  public MS3Response prepareMS3RequestAndGetResponse(MessageResponse value) throws Exception {
     MS3Request ms3Request = prapareMS3Request(value);
 
     // HttpEntity<MS3Request> request = new HttpEntity<>(ms3Request);

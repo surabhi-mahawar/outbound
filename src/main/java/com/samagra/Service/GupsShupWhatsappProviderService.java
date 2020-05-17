@@ -21,14 +21,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samagra.Entity.GupshupMessageEntity;
 import com.samagra.Entity.GupshupStateEntity;
-import com.samagra.Factory.Provider;
+import com.samagra.Factory.IProvider;
+import com.samagra.Factory.AbstractProvider;
 import com.samagra.Repository.MessageRepository;
 import com.samagra.Repository.StateRepository;
 import com.samagra.common.Request.Message;
 import com.samagra.notification.Response.MS3Response;
 import com.samagra.notification.Response.MessageResponse;
 
-public class GupsShupWhatsappProviderService implements Provider {
+public class GupsShupWhatsappProviderService extends AbstractProvider implements IProvider {
 
   @Value("${provider.gupshup.whatsapp.appname}")
   private String gupshupWhatsappApp;
