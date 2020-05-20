@@ -25,9 +25,6 @@ public class GupshupMessageEntity {
   @Column(nullable = false, name = "phone_no")
   private String phoneNo;
   
-  @Column(name = "msg_id")
-  private String msgId;
-
   @Column(nullable = false, name = "message")
   private String message;
 

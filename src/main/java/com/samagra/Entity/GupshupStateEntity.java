@@ -26,6 +26,13 @@ public class GupshupStateEntity {
   @Column(nullable = false, name = "phone_no")
   private String phoneNo;
 
-  @Column(nullable = false, name = "state")
-  private String state;
+  @Column(name = "state")
+  private String xmlPrevious;
+  
+  @Column(name = "previous_path")
+  private String previousPath;
+  
+  @Column(name = "bot_form_name")
+  private String botFormName;
+  
 }
