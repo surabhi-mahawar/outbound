@@ -26,9 +26,10 @@ public class GupshupConsumer {
     XmlMapper xmlMapper = new XmlMapper();
     MessageResponse value = xmlMapper.readValue(message, MessageResponse.class);
 
-    log.info("Consumer got message: {}", value.getPayload().getSender().getName());
+    // log.info("Consumer got message: {}", value.getPayload().getSender().getName());
 
-    ms3Service.processKafkaInResponse(value);
+    if(value.getPayload().getPayload().getText() != null || value.getPayload().getPayload().getType().equals("text"))
+      ms3Service.processKafkaInResponse(value);
   }
 
   @KafkaListener(id = "userevent", topics = "${gupshup-opted-out}")

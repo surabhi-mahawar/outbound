@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class Ms3Service {
 
-  private final static String REQUEST_URI = "http://localhost:8080/generate-message";
+  private final static String REQUEST_URI = "http://localhost:8080/generate-message?";
 
   @Autowired
   private static RestTemplate restTemplate;
@@ -57,9 +57,10 @@ public class Ms3Service {
     String urlParams =
         URLEncodedUtils.format(hashMapToNameValuePairList(map), '&', Charset.defaultCharset());
 
+    restTemplate = new RestTemplate();
     HttpEntity<String> request = new HttpEntity<String>(urlParams);
     restTemplate.getMessageConverters().add(getMappingJackson2HttpMessageConverter());
-    MS3Response ms3Response = restTemplate.postForObject(REQUEST_URI, request, MS3Response.class);
+    MS3Response ms3Response = restTemplate.getForObject(REQUEST_URI + urlParams, MS3Response.class);
 
     // String str = new String("{\n" + " \"lastResponse\": false, \"messageRequest\": {\n"
     // + " \"app\": \"DemoApp\",\n" + " \"timestamp\": 1580227766370,\n"
@@ -86,7 +87,7 @@ public class Ms3Service {
     String prevPath = null;
     String prevXMl = null;
 
-    GupshupStateEntity stateEntity = stateRepo.findByPhoneNo(value.getPayload().getPhone());
+    GupshupStateEntity stateEntity = stateRepo.findByPhoneNo(value.getPayload().getSender().getPhone());
     if (stateEntity != null) {
       prevXMl = stateEntity.getXmlPrevious();
       prevPath = stateEntity.getPreviousPath();

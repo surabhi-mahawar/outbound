@@ -16,6 +16,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +30,7 @@ import com.samagra.common.Request.Message;
 import com.samagra.notification.Response.MS3Response;
 import com.samagra.notification.Response.MessageResponse;
 
+@Service
 public class GupsShupWhatsappProviderService extends AbstractProvider implements IProvider {
 
   @Value("${provider.gupshup.whatsapp.appname}")
@@ -67,20 +69,23 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
       throws Exception {
     String message = ms3Response.getNextMessage();
 
+
     HashMap<String, String> params = new HashMap<String, String>();
     params.put("channel", "whatsapp");
-    params.put("source", value.getPayload().getSource());
-    params.put("destination", value.getPayload().getPhone());
-    params.put("src", gupshupWhatsappApp);
+    params.put("source", "917834811114");
+    params.put("destination", "919415787824");
+    params.put("src.name", gupshupWhatsappApp);
 
-    params.put("type", "text");
-    params.put("text", message);
-    params.put("isHSM", "false");
+    // params.put("type", "text");
+    params.put("message", message);
+    // params.put("isHSM", "false");
 
     String str2 =
         URLEncodedUtils.format(hashMapToNameValuePairList(params), '&', Charset.defaultCharset());
 
+    System.out.println("Question for user: " + message);
     HttpEntity<String> request = new HttpEntity<String>(str2, getVerifyHttpHeader());
+    restTemplate = new RestTemplate();
     restTemplate.getMessageConverters().add(getMappingJackson2HttpMessageConverter());
     restTemplate.postForObject(GUPSHUP_OUTBOUND, request, String.class);
   }
@@ -138,7 +143,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
     headers.add("Cache-Control", "no-cache");
-    headers.add("apikey", "8cfab6a264784290c2b736f2f53b51b4 ");
+    headers.add("apikey", "c2ed3ece4e7c40eac0af0e012866e090 ");
     return headers;
   }
 
@@ -153,7 +158,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
 
   private void appendNewResponse(MS3Response body, MessageResponse kafkaResponse)
       throws JsonProcessingException {
-    GupshupMessageEntity msgEntity = msgRepo.findByPhoneNo(kafkaResponse.getPayload().getSource());
+    GupshupMessageEntity msgEntity = msgRepo.findByPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
 
 //    ObjectMapper mapper = new ObjectMapper();
 //    String json = null;
@@ -162,7 +167,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
       msgEntity = new GupshupMessageEntity();
     }
     // json = mapper.writeValueAsString(body.getMessage());
-    msgEntity.setPhoneNo(kafkaResponse.getPayload().getSource());
+    msgEntity.setPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
     msgEntity.setMessage(body.getNextMessage());
     msgEntity.setLastResponse(body.getCurrentIndex() == null ? true : false);
 
@@ -173,11 +178,11 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
 
   private void replaceUserState(MS3Response body, MessageResponse kafkaResponse)
       throws JAXBException {
-    GupshupStateEntity saveEntity = stateRepo.findByPhoneNo(kafkaResponse.getPayload().getSource());
+    GupshupStateEntity saveEntity = stateRepo.findByPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
     if (saveEntity == null) {
       saveEntity = new GupshupStateEntity();
     }
-    saveEntity.setPhoneNo(kafkaResponse.getPayload().getSource());
+    saveEntity.setPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
     saveEntity.setPreviousPath(body.getCurrentIndex());
     saveEntity.setXmlPrevious(body.getCurrentResponseState());
     saveEntity.setBotFormName(null);

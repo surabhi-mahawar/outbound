@@ -14,19 +14,21 @@ public class OutBoundService {
 
   @Value("${provider.list}")
   private String providerList;
-  
-  
+
+
   @Autowired
   private Ms3Service ms3Service;
 
+  @Autowired
+  private GupsShupWhatsappProviderService ser;
+
   public void processKafkaInResponse(MessageResponse value) throws Exception {
-    IProvider provider = null;
     MS3Response ms3Response = ms3Service.prepareMS3RequestAndGetResponse(value);
 
     String[] providerArray = providerList.split(",");
     for (int i = 0; i < providerArray.length; i++) {
-      provider = ProviderFactory.getProvider(providerArray[i]);
-      provider.processInBoundMessage(ms3Response, value);
+//      provider = ProviderFactory.getProvider(providerArray[i]);
+      ser.processInBoundMessage(ms3Response, value);
     }
   }
 }
