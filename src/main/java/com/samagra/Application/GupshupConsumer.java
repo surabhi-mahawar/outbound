@@ -28,7 +28,8 @@ public class GupshupConsumer {
 
     // log.info("Consumer got message: {}", value.getPayload().getSender().getName());
 
-    if(value.getPayload().getPayload().getText() != null || value.getPayload().getPayload().getType().equals("text"))
+    if (value.getPayload().getPayload().getText() != null
+        || value.getPayload().getPayload().getType().equals("text"))
       ms3Service.processKafkaInResponse(value);
   }
 
@@ -36,7 +37,7 @@ public class GupshupConsumer {
   public void consumeOptedOutMessage(String message)
       throws JsonMappingException, JsonProcessingException {
     XmlMapper xmlMapper = new XmlMapper();
-    MessageResponse value = xmlMapper.readValue("message",MessageResponse.class);
+    MessageResponse value = xmlMapper.readValue("message", MessageResponse.class);
 
     log.info("Consumer got message: {}", value);
   }

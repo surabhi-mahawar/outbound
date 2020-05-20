@@ -1,14 +1,19 @@
 package com.samagra.Factory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import com.samagra.Service.GupsShupWhatsappProviderService;
 
 @Component
 public class ProviderFactory {
 
-  public static IProvider getProvider(String provider) {
+  @Autowired
+  @Qualifier("gupshupWhatsappService")
+  private IProvider gupshupWhatsapp;
+
+  public IProvider getProvider(String provider) {
     if (provider.equals("gupshup.whatsapp")) {
-      return (IProvider) new GupsShupWhatsappProviderService();
+      return gupshupWhatsapp;
     }
     return null;
   }

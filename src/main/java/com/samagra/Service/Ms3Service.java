@@ -13,13 +13,11 @@ import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samagra.Entity.GupshupStateEntity;
 import com.samagra.Repository.StateRepository;
 import com.samagra.common.Request.MS3Request;
@@ -35,7 +33,7 @@ public class Ms3Service {
   private final static String REQUEST_URI = "http://localhost:8080/generate-message?";
 
   @Autowired
-  private static RestTemplate restTemplate;
+  private  RestTemplate restTemplate;
 
   @Autowired
   private StateRepository stateRepo;
@@ -57,8 +55,8 @@ public class Ms3Service {
     String urlParams =
         URLEncodedUtils.format(hashMapToNameValuePairList(map), '&', Charset.defaultCharset());
 
-    restTemplate = new RestTemplate();
     HttpEntity<String> request = new HttpEntity<String>(urlParams);
+
     restTemplate.getMessageConverters().add(getMappingJackson2HttpMessageConverter());
     MS3Response ms3Response = restTemplate.getForObject(REQUEST_URI + urlParams, MS3Response.class);
 
@@ -87,7 +85,8 @@ public class Ms3Service {
     String prevPath = null;
     String prevXMl = null;
 
-    GupshupStateEntity stateEntity = stateRepo.findByPhoneNo(value.getPayload().getSender().getPhone());
+    GupshupStateEntity stateEntity =
+        stateRepo.findByPhoneNo(value.getPayload().getSender().getPhone());
     if (stateEntity != null) {
       prevXMl = stateEntity.getXmlPrevious();
       prevPath = stateEntity.getPreviousPath();

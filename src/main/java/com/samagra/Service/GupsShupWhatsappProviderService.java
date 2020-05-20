@@ -11,6 +11,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,17 +20,17 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samagra.Entity.GupshupMessageEntity;
 import com.samagra.Entity.GupshupStateEntity;
-import com.samagra.Factory.IProvider;
 import com.samagra.Factory.AbstractProvider;
+import com.samagra.Factory.IProvider;
 import com.samagra.Repository.MessageRepository;
 import com.samagra.Repository.StateRepository;
 import com.samagra.common.Request.Message;
 import com.samagra.notification.Response.MS3Response;
 import com.samagra.notification.Response.MessageResponse;
 
+@Qualifier("gupshupWhatsappService")
 @Service
 public class GupsShupWhatsappProviderService extends AbstractProvider implements IProvider {
 
@@ -38,7 +39,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
   private final static String GUPSHUP_OUTBOUND = "https://api.gupshup.io/sm/api/v1/msg";
 
   @Autowired
-  private static RestTemplate restTemplate;
+  private RestTemplate restTemplate;
 
   @Autowired
   private StateRepository stateRepo;
@@ -49,7 +50,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
   @Override
   public void processInBoundMessage(MS3Response ms3Response, MessageResponse kafkaResponse)
       throws Exception {
-
+    System.out.println("hereherherehrer");
     // db calls
     replaceUserState(ms3Response, kafkaResponse);
     appendNewResponse(ms3Response, kafkaResponse);
@@ -69,7 +70,6 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
       throws Exception {
     String message = ms3Response.getNextMessage();
 
-
     HashMap<String, String> params = new HashMap<String, String>();
     params.put("channel", "whatsapp");
     params.put("source", "917834811114");
@@ -85,7 +85,6 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
 
     System.out.println("Question for user: " + message);
     HttpEntity<String> request = new HttpEntity<String>(str2, getVerifyHttpHeader());
-    restTemplate = new RestTemplate();
     restTemplate.getMessageConverters().add(getMappingJackson2HttpMessageConverter());
     restTemplate.postForObject(GUPSHUP_OUTBOUND, request, String.class);
   }
@@ -95,32 +94,32 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
   private HashMap<String, String> constructWhatsAppMessage(Message message) {
     HashMap<String, String> params = new HashMap<String, String>();
     if (message.getPayload().getType().equals("message")
-        && message.getPayload().getMsgPayload().getType().equals("text")) {
+        && message.getPayload().getPayload().getType().equals("text")) {
 
-      params.put("type", message.getPayload().getMsgPayload().getType());
-      params.put("text", message.getPayload().getMsgPayload().getType());
-      params.put("isHSM", String.valueOf(message.getPayload().getMsgPayload().isHSM()));
+      params.put("type", message.getPayload().getPayload().getType());
+      params.put("text", message.getPayload().getPayload().getType());
+      params.put("isHSM", String.valueOf(message.getPayload().getPayload().getHsm()));
     } else if (message.getPayload().getType().equals("message")
-        && message.getPayload().getMsgPayload().getType().equals("image")) {
-      params.put("type", message.getPayload().getMsgPayload().getType());
-      params.put("originalUrl", message.getPayload().getMsgPayload().getUrl());
-      params.put("previewUrl", (message.getPayload().getMsgPayload().getUrl()));
+        && message.getPayload().getPayload().getType().equals("image")) {
+      params.put("type", message.getPayload().getPayload().getType());
+      params.put("originalUrl", message.getPayload().getPayload().getUrl());
+      params.put("previewUrl", (message.getPayload().getPayload().getUrl()));
 
-      if (message.getPayload().getMsgPayload().getCaption() != null) {
-        params.put("caption", message.getPayload().getMsgPayload().getCaption());
+      if (message.getPayload().getPayload().getCaption() != null) {
+        params.put("caption", message.getPayload().getPayload().getCaption());
       }
     } else if (message.getPayload().getType().equals("message")
-        && (message.getPayload().getMsgPayload().getType().equals("file")
-            || message.getPayload().getMsgPayload().getType().equals("audio")
-            || message.getPayload().getMsgPayload().getType().equals("video"))) {
+        && (message.getPayload().getPayload().getType().equals("file")
+            || message.getPayload().getPayload().getType().equals("audio")
+            || message.getPayload().getPayload().getType().equals("video"))) {
 
-      params.put("type", message.getPayload().getMsgPayload().getType());
-      params.put("url", message.getPayload().getMsgPayload().getUrl());
-      if (message.getPayload().getMsgPayload().getFileName() != null) {
-        params.put("fileName", message.getPayload().getMsgPayload().getFileName());
+      params.put("type", message.getPayload().getPayload().getType());
+      params.put("url", message.getPayload().getPayload().getUrl());
+      if (message.getPayload().getPayload().getFileName() != null) {
+        params.put("fileName", message.getPayload().getPayload().getFileName());
       }
-      if (message.getPayload().getMsgPayload().getCaption() != null) {
-        params.put("caption", message.getPayload().getMsgPayload().getCaption());
+      if (message.getPayload().getPayload().getCaption() != null) {
+        params.put("caption", message.getPayload().getPayload().getCaption());
       }
     }
     return params;
@@ -158,11 +157,12 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
 
   private void appendNewResponse(MS3Response body, MessageResponse kafkaResponse)
       throws JsonProcessingException {
-    GupshupMessageEntity msgEntity = msgRepo.findByPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
+    GupshupMessageEntity msgEntity =
+        msgRepo.findByPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
 
-//    ObjectMapper mapper = new ObjectMapper();
-//    String json = null;
-    
+    // ObjectMapper mapper = new ObjectMapper();
+    // String json = null;
+
     if (msgEntity == null) {
       msgEntity = new GupshupMessageEntity();
     }
@@ -178,7 +178,8 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
 
   private void replaceUserState(MS3Response body, MessageResponse kafkaResponse)
       throws JAXBException {
-    GupshupStateEntity saveEntity = stateRepo.findByPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
+    GupshupStateEntity saveEntity =
+        stateRepo.findByPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
     if (saveEntity == null) {
       saveEntity = new GupshupStateEntity();
     }
