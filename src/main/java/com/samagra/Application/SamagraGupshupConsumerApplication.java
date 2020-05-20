@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository;
 @EnableAsync
 @EnableJpaRepositories("com.samagra")
 @EntityScan("com.samagra")
-@ComponentScan(basePackages = {"com.samagra.Application","com.samagra"})
+@ComponentScan(basePackages = {"com.samagra.Application","com.samagra","com.samagra.Factory"})
 public class SamagraGupshupConsumerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(SamagraGupshupConsumerApplication.class, args);

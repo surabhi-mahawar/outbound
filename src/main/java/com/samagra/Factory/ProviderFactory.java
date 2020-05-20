@@ -1,7 +1,9 @@
 package com.samagra.Factory;
 
+import org.springframework.stereotype.Component;
 import com.samagra.Service.GupsShupWhatsappProviderService;
 
+@Component
 public class ProviderFactory {
 
   public static IProvider getProvider(String provider) {

@@ -17,11 +17,8 @@ public class OutBoundService {
   @Autowired
   private Ms3Service ms3Service;
 
-  @Autowired
-  private IProvider provider;
-
   public void processKafkaInResponse(MessageResponse value) throws Exception {
-
+    IProvider provider = null;
     MS3Response ms3Response = ms3Service.prepareMS3RequestAndGetResponse(value);
 
     String[] providerArray = providerList.split(",");
