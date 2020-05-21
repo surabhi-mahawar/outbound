@@ -1,6 +1,5 @@
 package com.samagra.Entity;
 
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,21 +16,22 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @NoArgsConstructor
-@Table(name = "gupshup_state")
-public class GupshupStateEntity {
+@Table(name = "bot_form")
+public class BotEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false, name = "phone_no")
-  private String phoneNo;
+  @Column(name = "name")
+  private String formName;
 
-  @Column(name = "state")
-  private String xmlPrevious;
-  
-  @Column(name = "previous_path")
-  private String previousPath;
+  @Column(name = "welcome_message")
+  private String welcomeMessage;
+
+  @Column(name = "wrong_default_message")
+  private String wrongDefaultMessage;
   
   @Column(name = "form_id")
-  private int formId;
+  private Long formId;
+  
 }

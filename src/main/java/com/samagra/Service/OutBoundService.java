@@ -20,14 +20,16 @@ public class OutBoundService {
   @Autowired
   private Ms3Service ms3Service;
 
-  public void processKafkaInResponse(MessageResponse value) throws Exception {
-    MS3Response ms3Response ;
-//        = ms3Service.prepareMS3RequestAndGetResponse(value);
+  public void processKafkaInResponse(MessageResponse value, boolean firstMessage) throws Exception {
+    MS3Response ms3Response = null;
+    if (!firstMessage) {
+      ms3Response = ms3Service.prepareMS3RequestAndGetResponse(value);
+    }
 
     String[] providerArray = providerList.split(",");
     for (int i = 0; i < providerArray.length; i++) {
       IProvider provider = factoryProvider.getProvider(providerArray[i]);
-      provider.processInBoundMessage(null, value);
+      provider.processInBoundMessage(ms3Response, value, firstMessage);
     }
   }
 }

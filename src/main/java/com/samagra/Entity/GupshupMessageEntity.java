@@ -30,4 +30,8 @@ public class GupshupMessageEntity {
 
   @Column(name = "is_last_message")
   private boolean isLastResponse;
+  
+  @Column(name = "form_id")
+  private int form_id;
+  
 }

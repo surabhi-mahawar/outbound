@@ -3,7 +3,6 @@ create table gupshup_state(
 	phone_no VARCHAR(15) NOT NULL,
 	state text ,
 	previous_path VARCHAR(100) ,
-	bot_form_name VARCHAR(20) ,
 	updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 

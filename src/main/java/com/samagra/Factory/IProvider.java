@@ -5,6 +5,6 @@ import com.samagra.notification.Response.MessageResponse;
 
 public interface IProvider {
 
-  void processInBoundMessage(MS3Response ms3Response, MessageResponse value) throws Exception;
+  void processInBoundMessage(MS3Response ms3Response, MessageResponse value,boolean firstMessage) throws Exception;
 
 }
