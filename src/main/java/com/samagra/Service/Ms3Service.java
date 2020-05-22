@@ -11,7 +11,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
@@ -22,12 +21,9 @@ import com.samagra.Entity.GupshupStateEntity;
 import com.samagra.Repository.BotRepo;
 import com.samagra.Repository.StateRepository;
 import com.samagra.common.Request.MS3Request;
-import com.samagra.common.Request.UserState;
 import com.samagra.notification.Response.MS3Response;
 import com.samagra.notification.Response.MessageResponse;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Component
 public class Ms3Service {
 
@@ -86,7 +82,7 @@ public class Ms3Service {
     ms3Request.setPreviousPath(prevPath);
     ms3Request.setInstanceXMlPrevious(prevXMl);
 
-    // TODO   ms3Request.setBotFormName(botRepo.findByFormId(stateEntity.getFormId()).getFormName());
+    // TODO ms3Request.setBotFormName(botRepo.findByFormId(stateEntity.getFormId()).getFormName());
     return ms3Request;
   }
 

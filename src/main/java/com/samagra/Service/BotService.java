@@ -12,7 +12,7 @@ public class BotService {
   private BotRepo formRepo;
 
   public BotEntity getFormEntity(String name) {
-    return formRepo.findByName(name);
+    return formRepo.findByFormName(name);
   }
 
 
