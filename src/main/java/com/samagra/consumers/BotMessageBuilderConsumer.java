@@ -34,6 +34,7 @@ public class BotMessageBuilderConsumer {
     XmlMapper xmlMapper = new XmlMapper();
 
     MessageResponse value = xmlMapper.readValue(message, MessageResponse.class);
+    
     MS3Response ms3Response = ms3Service.prepareMS3RequestAndGetResponse(value);
 
 
