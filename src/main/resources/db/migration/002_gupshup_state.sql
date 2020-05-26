@@ -1,6 +1,5 @@
 create table gupshup_state(
 	id BIGSERIAL PRIMARY KEY NOT NULL,
-	state_form_id BIGSERIAL NOT NULL,
 	phone_no VARCHAR(15) NOT NULL,
 	state text ,
 	previous_path VARCHAR(100) ,

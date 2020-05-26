@@ -8,5 +8,5 @@ import com.samagra.Entity.GupshupMessageEntity;
 public interface MessageRepository extends JpaRepository<GupshupMessageEntity, Long> {
   GupshupMessageEntity findByPhoneNo(String phoneNo);
 
-  GupshupMessageEntity findByPhoneNoAndFormId(String phone,int id);
+  GupshupMessageEntity findByPhoneNoAndFormId(String phone);
 }

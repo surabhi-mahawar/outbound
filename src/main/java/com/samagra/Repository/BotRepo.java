@@ -6,6 +6,6 @@ import com.samagra.Entity.BotEntity;
 
 @Repository
 public interface BotRepo extends JpaRepository<BotEntity, Long> {
-  BotEntity findByFormName(String name);
+  BotEntity findByName(String name);
   BotEntity findByFormId(int i);
 }
