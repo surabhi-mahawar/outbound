@@ -1,9 +1,8 @@
 create table gupshup_message(
 	id BIGSERIAL PRIMARY KEY NOT NULL,
-	form_id BIGSERIAL NULL,
 	phone_no VARCHAR(15) NOT NULL,
 	updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-	message VARCHAR(10000) NOT NULL,	
+	message VARCHAR(10000) NOT NULL,
 	is_last_message boolean not null	
 );
 

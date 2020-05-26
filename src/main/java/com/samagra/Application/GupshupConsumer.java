@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.samagra.Service.FirstMessageService;
 import com.samagra.Service.OutBoundService;
 import com.samagra.notification.Response.MessageResponse;
 import lombok.extern.slf4j.Slf4j;
+
 
 @Slf4j
 @Service
@@ -21,22 +21,16 @@ public class GupshupConsumer {
   @Autowired
   private OutBoundService ms3Service;
 
-  @Autowired
-  private FirstMessageService firstMessageService;
-
   @KafkaListener(id = "message", topics = "${gupshup-incoming-message}")
   public void consumeMessage(String message) throws Exception {
-    MessageResponse value = new XmlMapper().readValue(message, MessageResponse.class);
+    XmlMapper xmlMapper = new XmlMapper();
+    MessageResponse value = xmlMapper.readValue(message, MessageResponse.class);
+
+    // log.info("Consumer got message: {}", value.getPayload().getSender().getName());
 
     if (value.getPayload().getPayload().getText() != null
-        || value.getPayload().getPayload().getType().equals("text")) {
-      
-      boolean firstMessage = firstMessageService.ifFirstMessageSendOptionMessage(message);
-      
-      ms3Service.processKafkaInResponse(value, firstMessage);
-    } else {
-      log.info("garbage type here we dont process you yet");
-    }
+        || value.getPayload().getPayload().getType().equals("text"))
+      ms3Service.processKafkaInResponse(value);
   }
 
   @KafkaListener(id = "userevent", topics = "${gupshup-opted-out}")

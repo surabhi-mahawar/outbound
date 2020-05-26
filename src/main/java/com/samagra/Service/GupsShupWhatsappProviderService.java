@@ -10,7 +10,6 @@ import javax.xml.bind.JAXBException;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,12 +20,10 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.samagra.Entity.BotEntity;
 import com.samagra.Entity.GupshupMessageEntity;
 import com.samagra.Entity.GupshupStateEntity;
 import com.samagra.Factory.AbstractProvider;
 import com.samagra.Factory.IProvider;
-import com.samagra.Repository.BotRepo;
 import com.samagra.Repository.MessageRepository;
 import com.samagra.Repository.StateRepository;
 import com.samagra.common.Request.Message;
@@ -50,66 +47,46 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
   @Autowired
   private MessageRepository msgRepo;
 
-  @Autowired
-  private BotRepo botRepo;
-
   @Override
-  public void processInBoundMessage(MS3Response ms3Response, MessageResponse kafkaResponse,
-      boolean firstMessage) throws Exception {
-    if (firstMessage) {
-      sendGupshupWhatsAppOutBound(ms3Response, kafkaResponse, null, firstMessage);
+  public void processInBoundMessage(MS3Response ms3Response, MessageResponse kafkaResponse)
+      throws Exception {
+    System.out.println("hereherherehrer");
+    // db calls
+    replaceUserState(ms3Response, kafkaResponse);
+    appendNewResponse(ms3Response, kafkaResponse);
+
+    boolean isLastResponse = ms3Response.getCurrentIndex() == null ? true : false;
+
+    if (isLastResponse) {
+      // call to odk
     } else {
-      boolean isLastResponse = ms3Response.getCurrentIndex() == null ? true : false;
-      if (isLastResponse) {
-        // call to odk
-      } else {
-        if (ms3Response.getIsPreviousInputCorrect() == 0) {
-          replaceUserState(ms3Response, kafkaResponse);
-          appendNewResponse(ms3Response, kafkaResponse);
-          sendGupshupWhatsAppOutBound(ms3Response, kafkaResponse, null, false);
-        } else if (ms3Response.getIsPreviousInputCorrect() == 1) {
-          sendGupshupWhatsAppOutBound(ms3Response, kafkaResponse, null, false);
-        } else {
-          BotEntity botEntity = botRepo.findByFormId(0);
-          sendGupshupWhatsAppOutBound(ms3Response, kafkaResponse,
-              botEntity.getWrongDefaultMessage(), false);
-        }
-      }
+      sendGupshupWhatsAppOutBound(ms3Response, kafkaResponse);
     }
   }
 
-  private void sendGupshupWhatsAppOutBound(MS3Response ms3Response, MessageResponse value,
-      String wrongMessage, boolean firstMessage) throws Exception {
+
+
+  private void sendGupshupWhatsAppOutBound(MS3Response ms3Response, MessageResponse value)
+      throws Exception {
+    String message = ms3Response.getNextMessage();
+
     HashMap<String, String> params = new HashMap<String, String>();
     params.put("channel", "whatsapp");
     params.put("source", "917834811114");
     params.put("destination", "919415787824");
     params.put("src.name", gupshupWhatsappApp);
-    params.put("message", prepareMessage(ms3Response, wrongMessage, firstMessage));
+
     // params.put("type", "text");
+    params.put("message", message);
     // params.put("isHSM", "false");
 
     String str2 =
         URLEncodedUtils.format(hashMapToNameValuePairList(params), '&', Charset.defaultCharset());
 
+    System.out.println("Question for user: " + message);
     HttpEntity<String> request = new HttpEntity<String>(str2, getVerifyHttpHeader());
     restTemplate.getMessageConverters().add(getMappingJackson2HttpMessageConverter());
     restTemplate.postForObject(GUPSHUP_OUTBOUND, request, String.class);
-  }
-
-
-
-  private String prepareMessage(MS3Response ms3Response, String wrongMessage,
-      boolean firstMessage) {
-    String message = "";
-    if (!Strings.isNotEmpty(wrongMessage)) {
-      message = wrongMessage;
-    } else if (firstMessage) {
-      message = "BRO ::Choose Any One of the Options :*Door 1* *Door 2* *Door 3*";
-    } else {
-      message = ms3Response.getNextMessage();
-    }
-    return message;
   }
 
 
@@ -183,15 +160,19 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     GupshupMessageEntity msgEntity =
         msgRepo.findByPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
 
+    // ObjectMapper mapper = new ObjectMapper();
+    // String json = null;
+
     if (msgEntity == null) {
       msgEntity = new GupshupMessageEntity();
-      msgEntity.setMessage(body.getNextMessage());
-    } else {
-      msgEntity.setMessage(msgEntity.getMessage() + body.getNextMessage());
     }
+    // json = mapper.writeValueAsString(body.getMessage());
     msgEntity.setPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
+    msgEntity.setMessage(body.getNextMessage());
     msgEntity.setLastResponse(body.getCurrentIndex() == null ? true : false);
 
+    // msgEntity.setPhoneNo(body.getMessage().getPayload().getSource());
+    // msgEntity.setMsgId(body.getMessage().getPayload().getId());
     msgRepo.save(msgEntity);
   }
 
@@ -205,11 +186,8 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     saveEntity.setPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
     saveEntity.setPreviousPath(body.getCurrentIndex());
     saveEntity.setXmlPrevious(body.getCurrentResponseState());
-
-    if (Integer.valueOf(kafkaResponse.getPayload().getPayload().getText()) > 0) {
-      saveEntity.setFormId(Integer.valueOf(kafkaResponse.getPayload().getPayload().getText()));
-    }
-
+    saveEntity.setBotFormName(null);
     stateRepo.save(saveEntity);
   }
+
 }

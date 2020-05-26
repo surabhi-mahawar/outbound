@@ -19,7 +19,6 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.samagra.Entity.GupshupStateEntity;
-import com.samagra.Repository.BotRepo;
 import com.samagra.Repository.StateRepository;
 import com.samagra.common.Request.MS3Request;
 import com.samagra.common.Request.UserState;
@@ -34,14 +33,10 @@ public class Ms3Service {
   private final static String REQUEST_URI = "http://localhost:8080/generate-message?";
 
   @Autowired
-  private RestTemplate restTemplate;
+  private  RestTemplate restTemplate;
 
   @Autowired
   private StateRepository stateRepo;
-
-  @Autowired
-  private BotRepo botRepo;
-
 
   public MS3Response prepareMS3RequestAndGetResponse(MessageResponse value) throws Exception {
     MS3Request ms3Request = prapareMS3Request(value);
@@ -56,21 +51,37 @@ public class Ms3Service {
     if (ms3Request.getInstanceXMlPrevious() != null)
       map.put("instanceXMlPrevious", ms3Request.getInstanceXMlPrevious());
 
-    map.put("formName", "first");
-
 
     String urlParams =
         URLEncodedUtils.format(hashMapToNameValuePairList(map), '&', Charset.defaultCharset());
 
-    // HttpEntity<String> request = new HttpEntity<String>(urlParams);
+    HttpEntity<String> request = new HttpEntity<String>(urlParams);
+
     restTemplate.getMessageConverters().add(getMappingJackson2HttpMessageConverter());
     MS3Response ms3Response = restTemplate.getForObject(REQUEST_URI + urlParams, MS3Response.class);
 
+    // String str = new String("{\n" + " \"lastResponse\": false, \"messageRequest\": {\n"
+    // + " \"app\": \"DemoApp\",\n" + " \"timestamp\": 1580227766370,\n"
+    // + " \"version\": 2,\n" + " \"type\": \"message\",\n"
+    // + " \"payload\": {\n"
+    // + " \"id\": \"ABEGkYaYVSEEAhAL3SLAWwHKeKrt6s3FKB0c\",\n"
+    // + " \"source\": \"917834811114\",\n"
+    // + " \"destination\": \"9718908699\",\n " + " \"type\": \"text\",\n"
+    // + " \"payload\": {\n" + " \"text\": \"Hi\"\n" + " },\n"
+    // + " \"sender\": {\n" + " \"phone\": \"9415787824\",\n"
+    // + " \"name\": \"Smit\"\n" + " }\n" + " }\n" + " },\n"
+    // + " \"userState\":
+    // \"<userstate><phoneno>9718908699</phoneno><questions><question1>value</question1></questions></userstate>\"\n"
+    // + "\n" + "}");
+    //
+    // ObjectMapper objectMapper = new ObjectMapper();
+    // MS3Response ms3Response = objectMapper.readValue(str, MS3Response.class);
     return ms3Response;
   }
 
   private MS3Request prapareMS3Request(MessageResponse value)
       throws JsonMappingException, JsonProcessingException, JAXBException {
+    UserState userState = new UserState();
     String prevPath = null;
     String prevXMl = null;
 
@@ -79,14 +90,31 @@ public class Ms3Service {
     if (stateEntity != null) {
       prevXMl = stateEntity.getXmlPrevious();
       prevPath = stateEntity.getPreviousPath();
+
+
+      // JSONObject jsonObject = new JSONObject(stateEntity.getState());
+      // userState.setPhoneno(jsonObject.getString("phone_no"));
+      // JSONObject mapObject = jsonObject.getJSONObject("questions");
+      //
+      // HashMap<String, String> result =
+      // new ObjectMapper().readValue(mapObject.toString(), HashMap.class);
+
+      // log.info("db result entity {} ", result);
     }
 
     MS3Request ms3Request = new MS3Request();
+    // JAXBContext context = JAXBContext.newInstance(UserState.class);
+    //
+    // Marshaller marshaller = context.createMarshaller();
+    //
+    // marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+    // StringWriter sw = new StringWriter();
+    //
+    // marshaller.marshal(userState, sw);
+
     ms3Request.setCurrentAnswer(value.getPayload().getPayload().getText());
     ms3Request.setPreviousPath(prevPath);
     ms3Request.setInstanceXMlPrevious(prevXMl);
-
-    // TODO   ms3Request.setBotFormName(botRepo.findByFormId(stateEntity.getFormId()).getFormName());
     return ms3Request;
   }
 

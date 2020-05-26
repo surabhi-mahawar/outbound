@@ -32,6 +32,7 @@ public class GupshupStateEntity {
   @Column(name = "previous_path")
   private String previousPath;
   
-  @Column(name = "form_id")
-  private int formId;
+  @Column(name = "bot_form_name")
+  private String botFormName;
+  
 }
