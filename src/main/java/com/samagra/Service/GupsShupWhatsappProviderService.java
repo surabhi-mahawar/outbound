@@ -20,10 +20,13 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samagra.Entity.GupshupMessageEntity;
 import com.samagra.Entity.GupshupStateEntity;
 import com.samagra.Factory.AbstractProvider;
 import com.samagra.Factory.IProvider;
+import com.samagra.Publisher.ODKPublisher;
+import com.samagra.Publisher.WhatsAppOutBoundPublisher;
 import com.samagra.Repository.MessageRepository;
 import com.samagra.Repository.StateRepository;
 import com.samagra.common.Request.Message;
@@ -47,10 +50,15 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
   @Autowired
   private MessageRepository msgRepo;
 
+  @Autowired
+  private ODKPublisher odkPublisher;
+
+  @Autowired
+  private WhatsAppOutBoundPublisher WOBP;
+
   @Override
   public void processInBoundMessage(MS3Response ms3Response, MessageResponse kafkaResponse)
       throws Exception {
-    System.out.println("hereherherehrer");
     // db calls
     replaceUserState(ms3Response, kafkaResponse);
     appendNewResponse(ms3Response, kafkaResponse);
@@ -58,8 +66,10 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     boolean isLastResponse = ms3Response.getCurrentIndex() == null ? true : false;
 
     if (isLastResponse) {
-      // call to odk
+      odkPublisher.send(new ObjectMapper().writeValueAsString(ms3Response));
     } else {
+      // prepare send message using ms3response and kafkaresponse you need both of them
+      WOBP.send("null");
       sendGupshupWhatsAppOutBound(ms3Response, kafkaResponse);
     }
   }
@@ -157,22 +167,20 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
 
   private void appendNewResponse(MS3Response body, MessageResponse kafkaResponse)
       throws JsonProcessingException {
+    String message = "";
     GupshupMessageEntity msgEntity =
         msgRepo.findByPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
 
-    // ObjectMapper mapper = new ObjectMapper();
-    // String json = null;
 
     if (msgEntity == null) {
       msgEntity = new GupshupMessageEntity();
+      message = body.getNextMessage();
+    } else {
+      message = msgEntity.getMessage();
     }
-    // json = mapper.writeValueAsString(body.getMessage());
-    msgEntity.setPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
-    msgEntity.setMessage(body.getNextMessage());
+    msgEntity.setMessage(message + body.getNextMessage());
     msgEntity.setLastResponse(body.getCurrentIndex() == null ? true : false);
 
-    // msgEntity.setPhoneNo(body.getMessage().getPayload().getSource());
-    // msgEntity.setMsgId(body.getMessage().getPayload().getId());
     msgRepo.save(msgEntity);
   }
 
