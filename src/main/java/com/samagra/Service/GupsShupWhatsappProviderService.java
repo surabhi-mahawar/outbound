@@ -73,7 +73,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     HashMap<String, String> params = new HashMap<String, String>();
     params.put("channel", "whatsapp");
     params.put("source", "917834811114");
-    params.put("destination", "919415787824");
+    params.put("destination", value.getPayload().getSender().getPhone());
     params.put("src.name", gupshupWhatsappApp);
 
     // params.put("type", "text");
