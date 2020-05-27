@@ -11,7 +11,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.samagra.Entity.GupshupStateEntity;
 import com.samagra.Repository.StateRepository;
 import com.samagra.common.Request.MS3Request;
-import com.samagra.common.Request.UserState;
 import com.samagra.notification.Response.MS3Response;
 import com.samagra.notification.Response.MessageResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +32,7 @@ public class Ms3Service {
   private final static String REQUEST_URI = "http://localhost:8080/generate-message?";
 
   @Autowired
+  @Qualifier("rest")
   private RestTemplate restTemplate;
 
   @Autowired

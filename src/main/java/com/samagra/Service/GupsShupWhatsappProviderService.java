@@ -42,6 +42,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
   private final static String GUPSHUP_OUTBOUND = "https://api.gupshup.io/sm/api/v1/msg";
 
   @Autowired
+  @Qualifier("rest")
   private RestTemplate restTemplate;
 
   @Autowired

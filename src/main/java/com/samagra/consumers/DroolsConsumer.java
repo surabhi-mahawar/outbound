@@ -21,7 +21,7 @@ public class DroolsConsumer {
   public void consumeMessage(String message) throws Exception {
     XmlMapper xmlMapper = new XmlMapper();
     MessageResponse value = xmlMapper.readValue(message, MessageResponse.class);
-
+    log.info("inside the BMBP topic consumer");
     // DROOLS logic goes here.
     if (value.getPayload().getPayload().getText() != null
         || value.getPayload().getPayload().getType().equals("text"))

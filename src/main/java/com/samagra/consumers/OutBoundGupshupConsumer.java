@@ -10,6 +10,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,8 +20,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import com.samagra.notification.Response.MS3Response;
-import com.samagra.notification.Response.MessageResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OutBoundGupshupConsumer {
 
   @Autowired
+  @Qualifier("rest")
   private RestTemplate restTemplate;
 
   @Value("${provider.gupshup.whatsapp.appname}")
@@ -39,19 +40,21 @@ public class OutBoundGupshupConsumer {
 
   @KafkaListener(id = "outbound", topics = "${gs-whatsapp-outbound-message")
   private void sendGupshupWhatsAppOutBound(String inKafkaMessage) throws Exception {
-    MS3Response ms3Response = null; // get it from inKafkaMessage
-    MessageResponse value = null; // get it from inKafkaMessage
-
-    String message = ms3Response.getNextMessage();
+    // MS3Response ms3Response = null; // get it from inKafkaMessage
+    // MessageResponse value = null; // get it from inKafkaMessage
+    //
+    // String message = ms3Response.getNextMessage();
+    FileMessage message = new ObjectMapper().readValue(inKafkaMessage, FileMessage.class);
+    String phone = message.getPhone();
+    String msg = message.getMessage();
 
     HashMap<String, String> params = new HashMap<String, String>();
     params.put("channel", "whatsapp");
     params.put("source", "917834811114");
-    params.put("destination", "919415787824");
+    params.put("destination", phone);
     params.put("src.name", gupshupWhatsappApp);
-
     // params.put("type", "text");
-    params.put("message", message);
+    params.put("message", msg);
     // params.put("isHSM", "false");
 
     String str2 =
