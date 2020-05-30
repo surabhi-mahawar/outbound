@@ -3,9 +3,9 @@ package com.samagra.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import com.samagra.Factory.IProvider;
-import com.samagra.Factory.ProviderFactory;
-import com.samagra.Publisher.BotMessageBuilderPublisher;
+import com.samagra.Provider.Factory.IProvider;
+import com.samagra.Provider.Factory.ProviderFactory;
+import com.samagra.Transformer.Publisher.BotMessageBuilderPublisher;
 import com.samagra.notification.Response.MS3Response;
 import com.samagra.notification.Response.MessageResponse;
 

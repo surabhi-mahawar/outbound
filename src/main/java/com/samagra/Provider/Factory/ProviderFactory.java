@@ -1,4 +1,4 @@
-package com.samagra.Factory;
+package com.samagra.Provider.Factory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -10,6 +10,10 @@ public class ProviderFactory {
   @Autowired
   @Qualifier("gupshupWhatsappService")
   private IProvider gupshupWhatsapp;
+  
+  @Autowired
+  @Qualifier("twilioWhatsappService")
+  private IProvider twilioWhatsapp;
 
   public IProvider getProvider(String provider) {
     if (provider.equals("gupshup.whatsapp")) {

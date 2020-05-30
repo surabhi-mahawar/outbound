@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.samagra.Publisher.BotMessageBuilderPublisher;
+import com.samagra.Transformer.Publisher.BotMessageBuilderPublisher;
 import com.samagra.notification.Response.MessageResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,6 +22,13 @@ public class DroolsConsumer {
     XmlMapper xmlMapper = new XmlMapper();
     MessageResponse value = xmlMapper.readValue(message, MessageResponse.class);
     log.info("inside the BMBP topic consumer");
+    log.info("type {}",value.getPayload().getType().name());
+    
+    if (!"text".equalsIgnoreCase(value.getPayload().getType().name())) {
+      log.info("different type of message");
+      return;
+    }
+
     // DROOLS logic goes here.
     if (value.getPayload().getPayload().getText() != null
         || value.getPayload().getPayload().getType().equals("text"))

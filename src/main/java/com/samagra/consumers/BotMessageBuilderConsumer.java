@@ -6,8 +6,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.samagra.Factory.IProvider;
-import com.samagra.Factory.ProviderFactory;
+import com.samagra.Provider.Factory.IProvider;
+import com.samagra.Provider.Factory.ProviderFactory;
 import com.samagra.Service.Ms3Service;
 import com.samagra.notification.Response.MS3Response;
 import com.samagra.notification.Response.MessageResponse;
@@ -36,7 +36,6 @@ public class BotMessageBuilderConsumer {
     MessageResponse value = xmlMapper.readValue(message, MessageResponse.class);
     
     MS3Response ms3Response = ms3Service.prepareMS3RequestAndGetResponse(value);
-
 
     String[] providerArray = providerList.split(",");
     for (int i = 0; i < providerArray.length; i++) {

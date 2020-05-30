@@ -51,8 +51,8 @@ public class OutBoundGupshupConsumer {
     HashMap<String, String> params = new HashMap<String, String>();
     params.put("channel", "whatsapp");
     params.put("source", "917834811114");
-    params.put("destination", phone);
-    params.put("src.name", gupshupWhatsappApp);
+    params.put("destination", "9718908699");
+    params.put("src.name", "demobb");
     // params.put("type", "text");
     params.put("message", msg);
     // params.put("isHSM", "false");
@@ -81,7 +81,7 @@ public class OutBoundGupshupConsumer {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
     headers.add("Cache-Control", "no-cache");
-    headers.add("apikey", "c2ed3ece4e7c40eac0af0e012866e090 ");
+    headers.add("apikey", "8cfab6a264784290c2b736f2f53b51b4 ");
     return headers;
   }
 

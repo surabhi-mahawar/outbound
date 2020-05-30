@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class Ms3Service {
 
-  private final static String REQUEST_URI = "http://localhost:8080/generate-message?";
+  private final static String REQUEST_URI = "https://4274100e5e08.ngrok.io/generate-message?";
 
   @Autowired
   @Qualifier("rest")

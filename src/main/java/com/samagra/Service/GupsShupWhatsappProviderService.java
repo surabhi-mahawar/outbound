@@ -23,16 +23,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samagra.Entity.GupshupMessageEntity;
 import com.samagra.Entity.GupshupStateEntity;
-import com.samagra.Factory.AbstractProvider;
-import com.samagra.Factory.IProvider;
-import com.samagra.Publisher.ODKPublisher;
-import com.samagra.Publisher.WhatsAppOutBoundPublisher;
+import com.samagra.Provider.Factory.AbstractProvider;
+import com.samagra.Provider.Factory.IProvider;
 import com.samagra.Repository.MessageRepository;
 import com.samagra.Repository.StateRepository;
+import com.samagra.Transformer.Publisher.ODKPublisher;
+import com.samagra.Transformer.Publisher.WhatsAppOutBoundPublisher;
 import com.samagra.common.Request.Message;
 import com.samagra.notification.Response.MS3Response;
 import com.samagra.notification.Response.MessageResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Qualifier("gupshupWhatsappService")
 @Service
 public class GupsShupWhatsappProviderService extends AbstractProvider implements IProvider {
@@ -60,22 +62,30 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
   @Override
   public void processInBoundMessage(MS3Response ms3Response, MessageResponse kafkaResponse)
       throws Exception {
+
+    // factory for channels
+
     // db calls
     replaceUserState(ms3Response, kafkaResponse);
     appendNewResponse(ms3Response, kafkaResponse);
 
-    boolean isLastResponse = ms3Response.getCurrentIndex() == null ? true : false;
+    log.info("ms3Response {}", new ObjectMapper().writeValueAsString(ms3Response));
+
+    boolean isLastResponse = ms3Response.getCurrentIndex().equals("endOfForm") ? true : false;
 
     if (isLastResponse) {
       odkPublisher.send(new ObjectMapper().writeValueAsString(ms3Response));
     } else {
+      OutboundMessage kafkaOutboundMessage = new OutboundMessage();
+      kafkaOutboundMessage.setMessageResponse(kafkaResponse);
+      kafkaOutboundMessage.setMs3Response(ms3Response);
       // prepare send message using ms3response and kafkaresponse you need both of them
-      WOBP.send("null");
+      // String outMsg = new ObjectMapper().writeValueAsString(kafkaOutboundMessage);
+
+      // WOBP.send(outMsg);
       sendGupshupWhatsAppOutBound(ms3Response, kafkaResponse);
     }
   }
-
-
 
   private void sendGupshupWhatsAppOutBound(MS3Response ms3Response, MessageResponse value)
       throws Exception {
@@ -84,7 +94,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     HashMap<String, String> params = new HashMap<String, String>();
     params.put("channel", "whatsapp");
     params.put("source", "917834811114");
-    params.put("destination", "919415787824");
+    params.put("destination", "919718908699");
     params.put("src.name", gupshupWhatsappApp);
 
     // params.put("type", "text");
@@ -153,7 +163,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
     headers.add("Cache-Control", "no-cache");
-    headers.add("apikey", "c2ed3ece4e7c40eac0af0e012866e090 ");
+    headers.add("apikey", "8cfab6a264784290c2b736f2f53b51b4");
     return headers;
   }
 
@@ -176,6 +186,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     if (msgEntity == null) {
       msgEntity = new GupshupMessageEntity();
       message = body.getNextMessage();
+      msgEntity.setPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
     } else {
       message = msgEntity.getMessage();
     }

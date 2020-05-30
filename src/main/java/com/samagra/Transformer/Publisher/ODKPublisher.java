@@ -1,4 +1,4 @@
-package com.samagra.Publisher;
+package com.samagra.Transformer.Publisher;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;

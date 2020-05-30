@@ -35,6 +35,7 @@ public class AppConfiguration {
       HttpClient httpClient = HttpClients
               .custom()
               .setDefaultCredentialsProvider(credentialsProvider)
+              .disableAuthCaching()
               .build();
 
       return builder
