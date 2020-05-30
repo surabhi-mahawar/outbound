@@ -11,10 +11,6 @@ public class ProviderFactory {
   @Qualifier("gupshupWhatsappService")
   private IProvider gupshupWhatsapp;
   
-  @Autowired
-  @Qualifier("twilioWhatsappService")
-  private IProvider twilioWhatsapp;
-
   public IProvider getProvider(String provider) {
     if (provider.equals("gupshup.whatsapp")) {
       return gupshupWhatsapp;
