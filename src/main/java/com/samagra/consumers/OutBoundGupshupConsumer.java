@@ -17,18 +17,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.samagra.notification.Response.MS3Response;
 import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
-@Service
-@RestController
+@Component
 public class OutBoundGupshupConsumer {
-
   @Autowired
   @Qualifier("rest")
   private RestTemplate restTemplate;
@@ -36,17 +36,16 @@ public class OutBoundGupshupConsumer {
   @Value("${provider.gupshup.whatsapp.appname}")
   private String gupshupWhatsappApp;
 
+  @Value("{provider.gupshup.whatsapp.apikey}")
+  private String gsApiKey;
+
   private final static String GUPSHUP_OUTBOUND = "https://api.gupshup.io/sm/api/v1/msg";
 
   @KafkaListener(id = "outbound", topics = "${gs-whatsapp-outbound-message")
-  private void sendGupshupWhatsAppOutBound(String inKafkaMessage) throws Exception {
-    // MS3Response ms3Response = null; // get it from inKafkaMessage
-    // MessageResponse value = null; // get it from inKafkaMessage
-    //
-    // String message = ms3Response.getNextMessage();
-    FileMessage message = new ObjectMapper().readValue(inKafkaMessage, FileMessage.class);
-    String phone = message.getPhone();
-    String msg = message.getMessage();
+  private void sendGupshupWhatsAppOutBound(String ms3Response) throws Exception {
+    MS3Response response = new ObjectMapper().readValue(ms3Response, MS3Response.class);
+
+    String nextMessage = response.getNextMessage();
 
     HashMap<String, String> params = new HashMap<String, String>();
     params.put("channel", "whatsapp");
@@ -54,13 +53,13 @@ public class OutBoundGupshupConsumer {
     params.put("destination", "9718908699");
     params.put("src.name", "demobb");
     // params.put("type", "text");
-    params.put("message", msg);
+    params.put("message", nextMessage);
     // params.put("isHSM", "false");
 
     String str2 =
         URLEncodedUtils.format(hashMapToNameValuePairList(params), '&', Charset.defaultCharset());
 
-    System.out.println("Question for user: " + message);
+    log.info("Question for user: {}", nextMessage);
     HttpEntity<String> request = new HttpEntity<String>(str2, getVerifyHttpHeader());
     restTemplate.getMessageConverters().add(getMappingJackson2HttpMessageConverter());
     restTemplate.postForObject(GUPSHUP_OUTBOUND, request, String.class);
@@ -76,22 +75,19 @@ public class OutBoundGupshupConsumer {
     return list;
   }
 
-
-  private static HttpHeaders getVerifyHttpHeader() throws Exception {
+  private HttpHeaders getVerifyHttpHeader() throws Exception {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
     headers.add("Cache-Control", "no-cache");
-    headers.add("apikey", "8cfab6a264784290c2b736f2f53b51b4 ");
+    headers.add("apikey", gsApiKey);
     return headers;
   }
 
-  public static MappingJackson2HttpMessageConverter getMappingJackson2HttpMessageConverter() {
+  public MappingJackson2HttpMessageConverter getMappingJackson2HttpMessageConverter() {
     MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter =
         new MappingJackson2HttpMessageConverter();
     mappingJackson2HttpMessageConverter
         .setSupportedMediaTypes(Collections.singletonList(MediaType.APPLICATION_FORM_URLENCODED));
     return mappingJackson2HttpMessageConverter;
   }
-
-
 }

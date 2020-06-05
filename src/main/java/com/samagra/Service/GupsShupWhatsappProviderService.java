@@ -41,6 +41,10 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
 
   @Value("${provider.gupshup.whatsapp.appname}")
   private String gupshupWhatsappApp;
+
+  @Value("{provider.gupshup.whatsapp.apikey}")
+  private String gsApiKey;
+
   private final static String GUPSHUP_OUTBOUND = "https://api.gupshup.io/sm/api/v1/msg";
 
   @Autowired
@@ -62,9 +66,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
   @Override
   public void processInBoundMessage(MS3Response ms3Response, MessageResponse kafkaResponse)
       throws Exception {
-
     // factory for channels
-
     // db calls
     replaceUserState(ms3Response, kafkaResponse);
     appendNewResponse(ms3Response, kafkaResponse);
@@ -76,21 +78,14 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     if (isLastResponse) {
       odkPublisher.send(new ObjectMapper().writeValueAsString(ms3Response));
     } else {
-      OutboundMessage kafkaOutboundMessage = new OutboundMessage();
-      kafkaOutboundMessage.setMessageResponse(kafkaResponse);
-      kafkaOutboundMessage.setMs3Response(ms3Response);
-      // prepare send message using ms3response and kafkaresponse you need both of them
-      // String outMsg = new ObjectMapper().writeValueAsString(kafkaOutboundMessage);
-
-      // WOBP.send(outMsg);
-      sendGupshupWhatsAppOutBound(ms3Response, kafkaResponse);
+      String outMsg = new ObjectMapper().writeValueAsString(ms3Response);
+      WOBP.send(outMsg);
+      // sendGupshupWhatsAppOutBound(ms3Response);
     }
   }
 
-  private void sendGupshupWhatsAppOutBound(MS3Response ms3Response, MessageResponse value)
-      throws Exception {
+  private void sendGupshupWhatsAppOutBound(MS3Response ms3Response) throws Exception {
     String message = ms3Response.getNextMessage();
-
     HashMap<String, String> params = new HashMap<String, String>();
     params.put("channel", "whatsapp");
     params.put("source", "917834811114");
@@ -109,7 +104,6 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     restTemplate.getMessageConverters().add(getMappingJackson2HttpMessageConverter());
     restTemplate.postForObject(GUPSHUP_OUTBOUND, request, String.class);
   }
-
 
 
   private HashMap<String, String> constructWhatsAppMessage(Message message) {
@@ -146,8 +140,6 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     return params;
   }
 
-
-
   public static List<NameValuePair> hashMapToNameValuePairList(HashMap<String, String> map) {
     List<NameValuePair> list = new ArrayList<NameValuePair>();
     for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -159,15 +151,15 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
   }
 
 
-  private static HttpHeaders getVerifyHttpHeader() throws Exception {
+  private HttpHeaders getVerifyHttpHeader() throws Exception {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
     headers.add("Cache-Control", "no-cache");
-    headers.add("apikey", "8cfab6a264784290c2b736f2f53b51b4");
+    headers.add("apikey", gsApiKey);
     return headers;
   }
 
-  public static MappingJackson2HttpMessageConverter getMappingJackson2HttpMessageConverter() {
+  public MappingJackson2HttpMessageConverter getMappingJackson2HttpMessageConverter() {
     MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter =
         new MappingJackson2HttpMessageConverter();
     mappingJackson2HttpMessageConverter
@@ -181,7 +173,6 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     String message = "";
     GupshupMessageEntity msgEntity =
         msgRepo.findByPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
-
 
     if (msgEntity == null) {
       msgEntity = new GupshupMessageEntity();
@@ -209,5 +200,4 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     saveEntity.setBotFormName(null);
     stateRepo.save(saveEntity);
   }
-
 }

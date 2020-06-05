@@ -19,6 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -29,8 +30,7 @@ import com.samagra.notification.Response.MS3Response;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
-@RestController
+@Component
 public class ODKConsumer {
 
   @Autowired

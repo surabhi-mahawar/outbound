@@ -28,9 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class Ms3Service {
-
   private final static String REQUEST_URI = "https://4274100e5e08.ngrok.io/generate-message?";
-
   @Autowired
   @Qualifier("rest")
   private RestTemplate restTemplate;
@@ -73,9 +71,7 @@ public class Ms3Service {
     if (stateEntity != null) {
       prevXMl = stateEntity.getXmlPrevious();
       prevPath = stateEntity.getPreviousPath();
-
     }
-
     MS3Request ms3Request = new MS3Request();
     ms3Request.setCurrentAnswer(value.getPayload().getPayload().getText());
     ms3Request.setPreviousPath(prevPath);
@@ -100,5 +96,4 @@ public class Ms3Service {
         .setSupportedMediaTypes(Collections.singletonList(MediaType.APPLICATION_FORM_URLENCODED));
     return mappingJackson2HttpMessageConverter;
   }
-
 }

@@ -31,10 +31,9 @@ public class BotMessageBuilderConsumer {
   @KafkaListener(id = "gsbmb", topics = "${gupshup-bot-message-builder}")
   public void consumeMessage(String message) throws Exception {
     log.info("inside BMBC {}", message);
-    XmlMapper xmlMapper = new XmlMapper();
 
+    XmlMapper xmlMapper = new XmlMapper();
     MessageResponse value = xmlMapper.readValue(message, MessageResponse.class);
-    
     MS3Response ms3Response = ms3Service.prepareMS3RequestAndGetResponse(value);
 
     String[] providerArray = providerList.split(",");
