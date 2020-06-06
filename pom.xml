@@ -80,7 +80,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.samagra</groupId>
-			<artifactId>x-message-vendor-lib</artifactId>
+			<artifactId>adapter</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
