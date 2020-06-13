@@ -147,7 +147,14 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
       HttpEntity<String> response2 = customRestTemplate.postForEntity(ODK2, request2, String.class);
       myObj.delete();
       log.info("response2 {}", response2);
-
+      
+      //db delete state
+      GupshupMessageEntity msgEntity = msgRepo.findByPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
+      msgRepo.delete(msgEntity);
+      
+      GupshupStateEntity saveEntity = stateRepo.findByPhoneNo(kafkaResponse.getPayload().getSender().getPhone());
+      stateRepo.delete(saveEntity);
+      
     } else {
       sendGupshupWhatsAppOutBound(ms3Response, kafkaResponse);
     }
@@ -198,32 +205,32 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
   private HashMap<String, String> constructWhatsAppMessage(Message message) {
     HashMap<String, String> params = new HashMap<String, String>();
     if (message.getPayload().getType().equals("message")
-        && message.getPayload().getMsgPayload().getType().equals("text")) {
+        && message.getPayload().getPayload().getType().equals("text")) {
 
-      params.put("type", message.getPayload().getMsgPayload().getType());
-      params.put("text", message.getPayload().getMsgPayload().getType());
-      params.put("isHSM", String.valueOf(message.getPayload().getMsgPayload().isHSM()));
+      params.put("type", message.getPayload().getPayload().getType());
+      params.put("text", message.getPayload().getPayload().getType());
+      params.put("isHSM", String.valueOf(message.getPayload().getPayload().getHsm()));
     } else if (message.getPayload().getType().equals("message")
-        && message.getPayload().getMsgPayload().getType().equals("image")) {
-      params.put("type", message.getPayload().getMsgPayload().getType());
-      params.put("originalUrl", message.getPayload().getMsgPayload().getUrl());
-      params.put("previewUrl", (message.getPayload().getMsgPayload().getUrl()));
+        && message.getPayload().getPayload().getType().equals("image")) {
+      params.put("type", message.getPayload().getPayload().getType());
+      params.put("originalUrl", message.getPayload().getPayload().getUrl());
+      params.put("previewUrl", (message.getPayload().getPayload().getUrl()));
 
-      if (message.getPayload().getMsgPayload().getCaption() != null) {
-        params.put("caption", message.getPayload().getMsgPayload().getCaption());
+      if (message.getPayload().getPayload().getCaption() != null) {
+        params.put("caption", message.getPayload().getPayload().getCaption());
       }
     } else if (message.getPayload().getType().equals("message")
-        && (message.getPayload().getMsgPayload().getType().equals("file")
-            || message.getPayload().getMsgPayload().getType().equals("audio")
-            || message.getPayload().getMsgPayload().getType().equals("video"))) {
+        && (message.getPayload().getPayload().getType().equals("file")
+            || message.getPayload().getPayload().getType().equals("audio")
+            || message.getPayload().getPayload().getType().equals("video"))) {
 
-      params.put("type", message.getPayload().getMsgPayload().getType());
-      params.put("url", message.getPayload().getMsgPayload().getUrl());
-      if (message.getPayload().getMsgPayload().getFileName() != null) {
-        params.put("fileName", message.getPayload().getMsgPayload().getFileName());
+      params.put("type", message.getPayload().getPayload().getType());
+      params.put("url", message.getPayload().getPayload().getUrl());
+      if (message.getPayload().getPayload().getFileName() != null) {
+        params.put("fileName", message.getPayload().getPayload().getFileName());
       }
-      if (message.getPayload().getMsgPayload().getCaption() != null) {
-        params.put("caption", message.getPayload().getMsgPayload().getCaption());
+      if (message.getPayload().getPayload().getCaption() != null) {
+        params.put("caption", message.getPayload().getPayload().getCaption());
       }
     }
     return params;

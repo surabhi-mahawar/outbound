@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class Ms3Service {
 
-  private final static String REQUEST_URI = "http://localhost:8080/generate-message?";
+  private final static String REQUEST_URI = "http://m3:8080/generate-message?";
 
   @Autowired
   private static RestTemplate restTemplate;
