@@ -113,7 +113,9 @@ public class Ms3Service {
     //
     // marshaller.marshal(userState, sw);
 
-    ms3Request.setCurrentAnswer(value.getPayload().getPayload().getText());
+    if(value.getPayload().getType().getCategory().equals("image")){
+      ms3Request.setCurrentAnswer(value.getPayload().getPayload().getUrl());
+    }else ms3Request.setCurrentAnswer(value.getPayload().getPayload().getText());
     ms3Request.setPreviousPath(prevPath);
     ms3Request.setInstanceXMlPrevious(prevXMl);
     return ms3Request;

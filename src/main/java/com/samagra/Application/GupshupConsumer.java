@@ -28,7 +28,10 @@ public class GupshupConsumer {
 
     // log.info("Consumer got message: {}", value.getPayload().getSender().getName());
 
-    if(value.getPayload().getPayload().getText() != null || value.getPayload().getPayload().getType().equals("text"))
+    if(value.getPayload().getPayload().getText() != null ||
+            value.getPayload().getType().getCategory().equals("image") ||
+            value.getPayload().getPayload().getType().equals("text")
+    )
       ms3Service.processKafkaInResponse(value);
   }
 

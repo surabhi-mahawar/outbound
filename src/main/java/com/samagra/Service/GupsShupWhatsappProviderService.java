@@ -246,7 +246,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
     headers.add("Cache-Control", "no-cache");
-    headers.add("apikey", "c2ed3ece4e7c40eac0af0e012866e090 ");
+    headers.add("apikey", "8e455564878b4ca2ccb7b37f13ef9bfa");
     return headers;
   }
 
