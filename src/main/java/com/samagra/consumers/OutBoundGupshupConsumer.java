@@ -41,7 +41,7 @@ public class OutBoundGupshupConsumer {
 
   private final static String GUPSHUP_OUTBOUND = "https://api.gupshup.io/sm/api/v1/msg";
 
-  @KafkaListener(id = "outbound", topics = "${gs-whatsapp-outbound-message")
+  @KafkaListener(id = "outbound", topics = "gs-whatsapp-outbound-message")
   private void sendGupshupWhatsAppOutBound(String ms3Response) throws Exception {
     MS3Response response = new ObjectMapper().readValue(ms3Response, MS3Response.class);
 

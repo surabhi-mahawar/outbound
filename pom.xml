@@ -10,10 +10,10 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.samagra</groupId>
-	<artifactId>whatsapp-outbound</artifactId>
+	<artifactId>outbound</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>whatsapp-outbound</name>
-	<description>whatsapp-outbound</description>
+	<name>outbound</name>
+	<description>outbound</description>
 
 	<properties>
 		<java.version>1.8</java.version>
