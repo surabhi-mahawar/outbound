@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 @EnableJpaRepositories("com.samagra")
 @EntityScan("com.samagra")
-@ComponentScan(basePackages = {"com.samagra.Application","com.samagra","com.samagra.Factory"})
+@ComponentScan(basePackages = {"com.samagra.Application","com.samagra","com.samagra.Provider.Factory"})
 public class Outbound {
 	public static void main(String[] args) {
 		SpringApplication.run(Outbound.class, args);

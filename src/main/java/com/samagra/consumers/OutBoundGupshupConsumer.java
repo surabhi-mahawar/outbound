@@ -6,6 +6,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.samagra.adapter.GupShupWhatsappAdapter;
+import messagerosa.core.model.XMessage;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
@@ -33,6 +36,9 @@ public class OutBoundGupshupConsumer {
   @Qualifier("rest")
   private RestTemplate restTemplate;
 
+  @Value("${inboundProcessed}")
+  private String  inboundProcessed;
+
   @Value("${provider.gupshup.whatsapp.appname}")
   private String gupshupWhatsappApp;
 
@@ -41,25 +47,27 @@ public class OutBoundGupshupConsumer {
 
   private final static String GUPSHUP_OUTBOUND = "https://api.gupshup.io/sm/api/v1/msg";
 
-  @KafkaListener(id = "outbound", topics = "gs-whatsapp-outbound-message")
-  private void sendGupshupWhatsAppOutBound(String ms3Response) throws Exception {
-    MS3Response response = new ObjectMapper().readValue(ms3Response, MS3Response.class);
+  @KafkaListener(id = "outbound", topics = "${inboundProcessed}")
+  private void sendGupshupWhatsAppOutBound(String xmsgXml) throws Exception {
+    XMessage xMsg = new ObjectMapper().readValue(xmsgXml, XMessage.class);
 
-    String nextMessage = response.getNextMessage();
+    //TODO transformer call to get new to be sent xmsg..
+    RestTemplate rest = GupShupWhatsappAdapter.convertToRestTemplate(xMsg);
 
     HashMap<String, String> params = new HashMap<String, String>();
-    params.put("channel", "whatsapp");
-    params.put("source", "917834811114");
-    params.put("destination", "9718908699");
+
+    params.put("channel", xMsg.getChannelURI());
+    params.put("source", xMsg.getFrom().getUserIdentifier());
+    params.put("destination", xMsg.getTo().getUserIdentifier());
     params.put("src.name", "demobb");
     // params.put("type", "text");
-    params.put("message", nextMessage);
+    params.put("message",  xMsg.getPayload().getText());
     // params.put("isHSM", "false");
 
     String str2 =
         URLEncodedUtils.format(hashMapToNameValuePairList(params), '&', Charset.defaultCharset());
 
-    log.info("Question for user: {}", nextMessage);
+    log.info("Question for user: {}", xMsg.getPayload().getText());
     HttpEntity<String> request = new HttpEntity<String>(str2, getVerifyHttpHeader());
     restTemplate.getMessageConverters().add(getMappingJackson2HttpMessageConverter());
     restTemplate.postForObject(GUPSHUP_OUTBOUND, request, String.class);
