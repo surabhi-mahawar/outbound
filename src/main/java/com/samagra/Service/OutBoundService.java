@@ -31,7 +31,7 @@ public class OutBoundService {
     String[] providerArray = providerList.split(",");
     for (int i = 0; i < providerArray.length; i++) {
       IProvider provider = factoryProvider.getProvider(providerArray[i]);
-      provider.processInBoundMessage(ms3Response, value);
+//      provider.processInBoundMessage(ms3Response, value);
     }
   }
 }

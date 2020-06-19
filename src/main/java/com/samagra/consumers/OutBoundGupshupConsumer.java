@@ -1,13 +1,9 @@
 package com.samagra.consumers;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.samagra.adapter.GupShupWhatsappAdapter;
+import lombok.extern.slf4j.Slf4j;
 import messagerosa.core.model.XMessage;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -21,12 +17,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.samagra.notification.Response.MS3Response;
-import lombok.extern.slf4j.Slf4j;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.util.*;
 
 
 @Slf4j
@@ -47,12 +45,14 @@ public class OutBoundGupshupConsumer {
 
   private final static String GUPSHUP_OUTBOUND = "https://api.gupshup.io/sm/api/v1/msg";
 
-  @KafkaListener(id = "outbound", topics = "${inboundProcessed}")
+  @KafkaListener(id = "outbound", topics = "${gs-whatsapp-outbound-message}")
   private void sendGupshupWhatsAppOutBound(String xmsgXml) throws Exception {
-    XMessage xMsg = new ObjectMapper().readValue(xmsgXml, XMessage.class);
 
-    //TODO transformer call to get new to be sent xmsg..
-    RestTemplate rest = GupShupWhatsappAdapter.convertToRestTemplate(xMsg);
+    XmlMapper xmlMapper = new XmlMapper();
+    XMessage xMsg = xmlMapper.readValue(xmsgXml, XMessage.class);
+
+  log.info("next question to user is {}" , new ObjectMapper().writeValueAsString(xMsg));
+//    RestTemplate rest = GupShupWhatsappAdapter.convertToRestTemplate(xMsg);
 
     HashMap<String, String> params = new HashMap<String, String>();
 
@@ -98,4 +98,19 @@ public class OutBoundGupshupConsumer {
         .setSupportedMediaTypes(Collections.singletonList(MediaType.APPLICATION_FORM_URLENCODED));
     return mappingJackson2HttpMessageConverter;
   }
+
+  public Object xmlToJava(String xml, Class<XMessage> obj) {
+    JAXBContext jaxbContext;
+    Object obj1 = null;
+    try {
+      jaxbContext = JAXBContext.newInstance(obj);
+      Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+      obj1= jaxbUnmarshaller.unmarshal(new StringReader(xml));
+    } catch (JAXBException e) {
+      e.printStackTrace();
+    }
+    return obj1;
+  }
+
 }
+

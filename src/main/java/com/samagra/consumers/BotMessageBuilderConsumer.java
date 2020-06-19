@@ -1,5 +1,6 @@
 package com.samagra.consumers;
 
+import messagerosa.core.model.XMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -27,19 +28,22 @@ public class BotMessageBuilderConsumer {
   @Autowired
   private Ms3Service ms3Service;
 
-
-  @KafkaListener(id = "gsbmb", topics = "${gupshup-bot-message-builder}")
-  public void consumeMessage(String message) throws Exception {
-    log.info("inside BMBC {}", message);
+  @KafkaListener(id = "gsbmb", topics = "${inboundProcessed}")
+  public void consumeMessage(String xmlMsg) throws Exception {
+    log.info("inside BMBC {}", xmlMsg);
 
     XmlMapper xmlMapper = new XmlMapper();
-    MessageResponse value = xmlMapper.readValue(message, MessageResponse.class);
-    MS3Response ms3Response = ms3Service.prepareMS3RequestAndGetResponse(value);
+    XMessage currentXmsg = xmlMapper.readValue(xmlMsg, XMessage.class);
+
+
+//    MS3Response ms3Response = ms3Service.prepareMS3RequestAndGetResponse(value);
+    //TODO call to get nextMsg
+    XMessage nextXmsg = xmlMapper.readValue(xmlMsg, XMessage.class);
 
     String[] providerArray = providerList.split(",");
     for (int i = 0; i < providerArray.length; i++) {
       IProvider provider = factoryProvider.getProvider(providerArray[i]);
-      provider.processInBoundMessage(ms3Response, value);
+      provider.processInBoundMessage(nextXmsg, currentXmsg);
     }
   }
 }
