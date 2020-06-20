@@ -10,8 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BotMessageBuilderPublisher {
 
   private KafkaTemplate<String, String> simpleProducer;
-  
-  
+
   @Value("${gupshup-bot-message-builder}")
   private String gsBMB;
 

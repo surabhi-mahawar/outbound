@@ -1,5 +1,9 @@
 package com.samagra.consumers;
 
+import com.samagra.Service.GupsShupWhatsappProviderService;
+import com.samagra.adapter.gs.whatsapp.GupShupWhatsappAdapter;
+import com.samagra.adapter.provider.factory.IProvider;
+import com.samagra.adapter.provider.factory.ProviderFactory;
 import messagerosa.core.model.XMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,8 +11,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.samagra.Provider.Factory.IProvider;
-import com.samagra.Provider.Factory.ProviderFactory;
 import com.samagra.Service.Ms3Service;
 import com.samagra.notification.Response.MS3Response;
 import com.samagra.notification.Response.MessageResponse;
@@ -28,6 +30,9 @@ public class BotMessageBuilderConsumer {
   @Autowired
   private Ms3Service ms3Service;
 
+  @Autowired
+  private GupShupWhatsappAdapter gsWAdapter;
+
   @KafkaListener(id = "gsbmb", topics = "${inboundProcessed}")
   public void consumeMessage(String xmlMsg) throws Exception {
     log.info("inside BMBC {}", xmlMsg);
@@ -37,8 +42,11 @@ public class BotMessageBuilderConsumer {
 
 
 //    MS3Response ms3Response = ms3Service.prepareMS3RequestAndGetResponse(value);
-    //TODO call to get nextMsg
+    //TODO call to trasformer to get nextMsg
     XMessage nextXmsg = xmlMapper.readValue(xmlMsg, XMessage.class);
+
+    gsWAdapter.convertToAPI(nextXmsg);
+
 
     String[] providerArray = providerList.split(",");
     for (int i = 0; i < providerArray.length; i++) {

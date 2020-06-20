@@ -1,28 +1,29 @@
 package com.samagra.Service;
 
-import java.util.HashMap;
-import javax.xml.bind.JAXBException;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.samagra.Transformer.Publisher.ODKPublisher;
+import com.samagra.adapter.gs.whatsapp.entity.GupshupMessageEntity;
+import com.samagra.adapter.gs.whatsapp.entity.GupshupStateEntity;
+import com.samagra.adapter.gs.whatsapp.repo.MessageRepository;
+import com.samagra.adapter.gs.whatsapp.repo.StateRepository;
+import com.samagra.adapter.provider.factory.AbstractProvider;
+import com.samagra.adapter.provider.factory.IProvider;
+import com.samagra.adapter.publisher.GupshupWhatsappOutboundPub;
+import com.samagra.common.Request.GSWhatsAppMessage;
+import lombok.extern.slf4j.Slf4j;
 import messagerosa.core.model.XMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.samagra.Entity.GupshupMessageEntity;
-import com.samagra.Entity.GupshupStateEntity;
-import com.samagra.Provider.Factory.AbstractProvider;
-import com.samagra.Provider.Factory.IProvider;
-import com.samagra.Repository.MessageRepository;
-import com.samagra.Repository.StateRepository;
-import com.samagra.Transformer.Publisher.ODKPublisher;
-import com.samagra.Transformer.Publisher.WhatsAppOutBoundPublisher;
-import com.samagra.common.Request.Message;
-import com.samagra.notification.Response.MessageResponse;
-import lombok.extern.slf4j.Slf4j;
+
+import java.util.HashMap;
+import javax.xml.bind.JAXBException;
+
+
 
 @Slf4j
 @Qualifier("gupshupWhatsappService")
@@ -51,7 +52,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
   private ODKPublisher odkPublisher;
 
   @Autowired
-  private WhatsAppOutBoundPublisher gsWhatsAppPublisher;
+  private GupshupWhatsappOutboundPub gsWhatsAppPublisher;
 
   @Override
   public void processInBoundMessage(XMessage nextMsg, XMessage currentMsg)
@@ -107,7 +108,7 @@ public class GupsShupWhatsappProviderService extends AbstractProvider implements
     saveEntity.setBotFormName(null);
     stateRepo.save(saveEntity);
   }
-  private HashMap<String, String> constructWhatsAppMessage(Message message) {
+  private HashMap<String, String> constructWhatsAppMessage(GSWhatsAppMessage message) {
     HashMap<String, String> params = new HashMap<String, String>();
     if (message.getPayload().getType().equals("message")
             && message.getPayload().getPayload().getType().equals("text")) {

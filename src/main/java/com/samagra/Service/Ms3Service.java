@@ -18,8 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.samagra.Entity.GupshupStateEntity;
-import com.samagra.Repository.StateRepository;
+import com.samagra.adapter.gs.whatsapp.repo.StateRepository;
 import com.samagra.common.Request.MS3Request;
 import com.samagra.notification.Response.MS3Response;
 import com.samagra.notification.Response.MessageResponse;
@@ -66,12 +65,12 @@ public class Ms3Service {
     String prevPath = null;
     String prevXMl = null;
 
-    GupshupStateEntity stateEntity =
-        stateRepo.findByPhoneNo(value.getPayload().getSender().getPhone());
-    if (stateEntity != null) {
-      prevXMl = stateEntity.getXmlPrevious();
-      prevPath = stateEntity.getPreviousPath();
-    }
+//    GupshupStateEntity stateEntity =
+//        stateRepo.findByPhoneNo(value.getPayload().getSender().getPhone());
+//    if (stateEntity != null) {
+//      prevXMl = stateEntity.getXmlPrevious();
+//      prevPath = stateEntity.getPreviousPath();
+//    }
     MS3Request ms3Request = new MS3Request();
     ms3Request.setCurrentAnswer(value.getPayload().getPayload().getText());
     ms3Request.setPreviousPath(prevPath);
