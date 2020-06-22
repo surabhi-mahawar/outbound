@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -30,14 +31,17 @@ public class OutboundMessageConsumer {
   private GupShupWhatsappAdapter gsWAdapter;
 
   @KafkaListener(id = "gsbmb", topics = "${inboundProcessed}")
-  public void consumeMessage(String nextXmsg) throws Exception {
-    log.info("inside BMBC {}", nextXmsg);
+  public void consumeMessage(List<String> listNextXmsg) throws Exception {
+    log.info("size of list {}", listNextXmsg.size());
+    for(String nextXmsg : listNextXmsg){
+      log.info("inside BMBC {}", nextXmsg);
 
-    XMessage currentXmsg = XMessageParser.parse(new ByteArrayInputStream(nextXmsg.getBytes(Charset.forName("UTF-8"))));
 
-//TODO call to trasformer to get nextXMsg
-    gsWAdapter.processInBoundMessage(currentXmsg);
-
+//    XMessage currentXmsg = XMessageParser.parse(new ByteArrayInputStream(nextXmsg.getBytes(Charset.forName("UTF-8"))));
+      XMessage currentXmsg = new XmlMapper().readValue(nextXmsg, XMessage.class);
+      //TODO call to trasformer to get nextXMsg
+      gsWAdapter.processInBoundMessage(currentXmsg);
+    }
 
 //    String[] providerArray = providerList.split(",");
 //    for (int i = 0; i < providerArray.length; i++) {
