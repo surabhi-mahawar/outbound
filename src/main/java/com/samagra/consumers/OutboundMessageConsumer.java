@@ -1,6 +1,7 @@
 package com.samagra.consumers;
 
 import com.samagra.adapter.gs.whatsapp.GupShupWhatsappAdapter;
+import com.samagra.adapter.provider.factory.IProvider;
 import com.samagra.adapter.provider.factory.ProviderFactory;
 import messagerosa.core.model.XMessage;
 import messagerosa.xml.XMessageParser;
@@ -21,32 +22,28 @@ import java.util.List;
 @RestController
 public class OutboundMessageConsumer {
 
-//  @Value("${provider.list}")
-//  private String providerList;
-//
-//  @Autowired
-//  private ProviderFactory factoryProvider;
+  @Autowired
+  private ProviderFactory factoryProvider;
 
   @Autowired
   private GupShupWhatsappAdapter gsWAdapter;
+
+
 
   @KafkaListener(id = "gsbmb", topics = "${inboundProcessed}")
   public void consumeMessage(List<String> listNextXmsg) throws Exception {
     log.info("size of list {}", listNextXmsg.size());
     for(String nextXmsg : listNextXmsg){
-      log.info("inside BMBC {}", nextXmsg);
+        //XMessage currentXmsg = XMessageParser.parse(new ByteArrayInputStream(nextXmsg.getBytes(Charset.forName("UTF-8"))));
+        XMessage currentXmsg = new XmlMapper().readValue(nextXmsg, XMessage.class);
 
+        String channel = currentXmsg.getChannelURI();
+        String provider = currentXmsg.getProviderURI();
 
-//    XMessage currentXmsg = XMessageParser.parse(new ByteArrayInputStream(nextXmsg.getBytes(Charset.forName("UTF-8"))));
-      XMessage currentXmsg = new XmlMapper().readValue(nextXmsg, XMessage.class);
-      //TODO call to trasformer to get nextXMsg
-      gsWAdapter.processInBoundMessage(currentXmsg);
-    }
-
-//    String[] providerArray = providerList.split(",");
-//    for (int i = 0; i < providerArray.length; i++) {
-//      IProvider provider = factoryProvider.getProvider(providerArray[i]);
-//      provider.processInBoundMessage(nextXmsg, currentXmsg);
-//    }
+        //TODO call to trasformer to get nextXMsg
+        log.info("next msg {}", currentXmsg.getPayload().getText());
+        IProvider iprovider = factoryProvider.getProvider(provider,channel);
+        iprovider.processInBoundMessage(currentXmsg);
+      }
   }
 }
