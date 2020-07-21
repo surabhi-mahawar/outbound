@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableKafka
-
 @EnableAsync
 @PropertySource("application-adapter.properties")
 @PropertySource("application.properties")
