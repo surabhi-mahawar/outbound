@@ -23,17 +23,15 @@ public class OutboundMessageConsumer {
     private ProviderFactory factoryProvider;
 
     @KafkaListener(id = "gsbmb", topics = "outbound")
-    public void consumeMessage(List<String> listNextXmsg) throws Exception {
-        log.info("size of list {}", listNextXmsg.size());
-        for (String nextXmsg : listNextXmsg) {
-            XMessage currentXmsg = XMessageParser.parse(new ByteArrayInputStream(nextXmsg.getBytes()));
+    public void consumeMessage(String message) throws Exception {
+        log.info("Outbound Message rec: {}", message);
+        XMessage currentXmsg = XMessageParser.parse(new ByteArrayInputStream(message.getBytes()));
 
-            String channel = currentXmsg.getChannelURI();
-            String provider = currentXmsg.getProviderURI();
+        String channel = currentXmsg.getChannelURI();
+        String provider = currentXmsg.getProviderURI();
 
-            log.info("next msg {}", currentXmsg.getPayload().getText());
-            IProvider iprovider = factoryProvider.getProvider(provider, channel);
-            iprovider.processInBoundMessage(currentXmsg);
-        }
+        log.info("next msg {}", currentXmsg.getPayload().getText());
+        IProvider iprovider = factoryProvider.getProvider(provider, channel);
+        iprovider.processInBoundMessage(currentXmsg);
     }
 }
