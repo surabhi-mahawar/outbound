@@ -26,4 +26,5 @@ target/
 hs_err_pid*
 samagra.gupshup.incoming.iml
 src/main/resources/application.properties
+src/main/resources/application-adapter.properties
 .env
