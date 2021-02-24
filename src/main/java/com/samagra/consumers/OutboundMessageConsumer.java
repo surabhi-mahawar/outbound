@@ -34,4 +34,17 @@ public class OutboundMessageConsumer {
         IProvider iprovider = factoryProvider.getProvider(provider, channel);
         iprovider.processInBoundMessage(currentXmsg);
     }
+
+    @KafkaListener(id = "broadcast", topics = "broadcast")
+    public void consumeMessageBroadcast(String message) throws Exception {
+        log.info("Broadcast Message rec: {}", message);
+        XMessage currentXmsg = XMessageParser.parse(new ByteArrayInputStream(message.getBytes()));
+
+        String channel = currentXmsg.getChannelURI();
+        String provider = currentXmsg.getProviderURI();
+
+        log.info("next msg {}", currentXmsg.getPayload().getText());
+        IProvider iprovider = factoryProvider.getProvider(provider, channel);
+        iprovider.processInBoundMessage(currentXmsg);
+    }
 }
