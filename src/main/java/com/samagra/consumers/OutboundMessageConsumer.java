@@ -1,6 +1,5 @@
 package com.samagra.consumers;
 
-import com.samagra.adapter.gs.whatsapp.GupShupWhatsappAdapter;
 import com.samagra.adapter.provider.factory.IProvider;
 import com.samagra.adapter.provider.factory.ProviderFactory;
 import messagerosa.core.model.XMessage;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayInputStream;
-import java.util.List;
 
 @Slf4j
 @Service
