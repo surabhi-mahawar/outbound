@@ -30,7 +30,7 @@ public class OutboundMessageConsumer {
 
         log.info("next msg {}", currentXmsg.getPayload().getText());
         IProvider iprovider = factoryProvider.getProvider(provider, channel);
-        iprovider.processInBoundMessage(currentXmsg);
+        iprovider.processOutBoundMessage(currentXmsg);
     }
 
     @KafkaListener(id = "broadcast", topics = "broadcast")
@@ -43,6 +43,6 @@ public class OutboundMessageConsumer {
 
         log.info("next msg {}", currentXmsg.getPayload().getText());
         IProvider iprovider = factoryProvider.getProvider(provider, channel);
-        iprovider.processInBoundMessage(currentXmsg);
+        iprovider.processOutBoundMessage(currentXmsg);
     }
 }
