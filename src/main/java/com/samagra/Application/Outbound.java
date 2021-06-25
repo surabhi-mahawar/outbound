@@ -17,7 +17,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @PropertySource("application-adapter.properties")
 @PropertySource("application-messagerosa.properties")
 @PropertySource("application.properties")
-@ComponentScan(basePackages = {"com.samagra.Application","com.samagra"})
+@ComponentScan(basePackages = {"com.samagra.Application","com.samagra", "com.*"})
 public class Outbound {
 	public static void main(String[] args) {
 		SpringApplication.run(Outbound.class, args);
