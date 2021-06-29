@@ -5,6 +5,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 import reactor.core.publisher.Flux;
 import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverOptions;
@@ -38,8 +39,8 @@ public class ReactiveKafkaConfiguration {
     ReceiverOptions<String, String> kafkaReceiverOptions(@Value("${kafka.topic.in}") String[] inTopicName) {
         ReceiverOptions<String, String> options = ReceiverOptions.create(kafkaConsumerConfiguration());
         return options.subscription(Arrays.asList(inTopicName))
-            .withKeyDeserializer(new StringDeserializer())
-            .withValueDeserializer(new StringDeserializer());
+            .withKeyDeserializer(new JsonDeserializer<>())
+            .withValueDeserializer(new JsonDeserializer());
     }
 
     @Bean

@@ -20,29 +20,29 @@ public class OutboundMessageConsumer {
     @Autowired
     private ProviderFactory factoryProvider;
 
-    @KafkaListener(id = "gsbmb", topics = "outbound")
-    public void consumeMessage(String message) throws Exception {
-        log.info("Outbound Message rec: {}", message);
-        XMessage currentXmsg = XMessageParser.parse(new ByteArrayInputStream(message.getBytes()));
-
-        String channel = currentXmsg.getChannelURI();
-        String provider = currentXmsg.getProviderURI();
-
-        log.info("next msg {}", currentXmsg.getPayload().getText());
-        IProvider iprovider = factoryProvider.getProvider(provider, channel);
-        iprovider.processOutBoundMessage(currentXmsg);
-    }
-
-    @KafkaListener(id = "broadcast", topics = "broadcast")
-    public void consumeMessageBroadcast(String message) throws Exception {
-        log.info("Broadcast Message rec: {}", message);
-        XMessage currentXmsg = XMessageParser.parse(new ByteArrayInputStream(message.getBytes()));
-
-        String channel = currentXmsg.getChannelURI();
-        String provider = currentXmsg.getProviderURI();
-
-        log.info("next msg {}", currentXmsg.getPayload().getText());
-        IProvider iprovider = factoryProvider.getProvider(provider, channel);
-        iprovider.processOutBoundMessage(currentXmsg);
-    }
+//    @KafkaListener(id = "gsbmb", topics = "outbound")
+//    public void consumeMessage(String message) throws Exception {
+//        log.info("Outbound Message rec: {}", message);
+//        XMessage currentXmsg = XMessageParser.parse(new ByteArrayInputStream(message.getBytes()));
+//
+//        String channel = currentXmsg.getChannelURI();
+//        String provider = currentXmsg.getProviderURI();
+//
+//        log.info("next msg {}", currentXmsg.getPayload().getText());
+//        IProvider iprovider = factoryProvider.getProvider(provider, channel);
+//        iprovider.processOutBoundMessage(currentXmsg);
+//    }
+//
+//    @KafkaListener(id = "broadcast", topics = "broadcast")
+//    public void consumeMessageBroadcast(String message) throws Exception {
+//        log.info("Broadcast Message rec: {}", message);
+//        XMessage currentXmsg = XMessageParser.parse(new ByteArrayInputStream(message.getBytes()));
+//
+//        String channel = currentXmsg.getChannelURI();
+//        String provider = currentXmsg.getProviderURI();
+//
+//        log.info("next msg {}", currentXmsg.getPayload().getText());
+//        IProvider iprovider = factoryProvider.getProvider(provider, channel);
+//        iprovider.processOutBoundMessage(currentXmsg);
+//    }
 }
