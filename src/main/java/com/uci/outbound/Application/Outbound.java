@@ -8,13 +8,14 @@ import org.springframework.data.cassandra.repository.config.EnableReactiveCassan
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-@SpringBootApplication
 @EnableKafka
 @EnableAsync
 @EnableReactiveCassandraRepositories("com.uci.dao")
 @PropertySource("application-adapter.properties")
 @PropertySource("application-messagerosa.properties")
 @PropertySource("application.properties")
+@SpringBootApplication
+@ComponentScan(basePackages = {"com.uci.outbound", "com.uci.adapter", "com.uci.utils"})
 public class Outbound {
 	public static void main(String[] args) {
 		SpringApplication.run(Outbound.class, args);
