@@ -1,4 +1,4 @@
-package com.samagra.consumers;
+package com.uci.outbound.consumers;
 
 import com.samagra.adapter.provider.factory.IProvider;
 import com.samagra.adapter.provider.factory.ProviderFactory;

@@ -1,4 +1,4 @@
-package com.samagra.Application;
+package com.uci.outbound.Application;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
