@@ -2,23 +2,20 @@ package com.samagra.consumers;
 
 import com.samagra.adapter.provider.factory.IProvider;
 import com.samagra.adapter.provider.factory.ProviderFactory;
+import com.uci.dao.models.XMessageDAO;
+import com.uci.dao.repository.XMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import messagerosa.core.model.XMessage;
-import messagerosa.dao.XMessageDAO;
-import messagerosa.dao.XMessageDAOUtills;
-import messagerosa.dao.XMessageRepo;
+import com.uci.dao.utils.XMessageDAOUtills;
 import messagerosa.xml.XMessageParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.kafka.receiver.ReceiverRecord;
 
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.util.function.Consumer;
 
@@ -33,7 +30,7 @@ public class OutboundKafkaController {
     private ProviderFactory factoryProvider;
 
     @Autowired
-    private XMessageRepo xMessageRepo;
+    private XMessageRepository xMessageRepo;
 
     @EventListener(ApplicationStartedEvent.class)
     public void onMessage() {
