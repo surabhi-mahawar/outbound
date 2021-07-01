@@ -1,7 +1,7 @@
 package com.uci.outbound.consumers;
 
-import com.samagra.adapter.provider.factory.IProvider;
-import com.samagra.adapter.provider.factory.ProviderFactory;
+import com.uci.adapter.provider.factory.IProvider;
+import com.uci.adapter.provider.factory.ProviderFactory;
 import com.uci.dao.models.XMessageDAO;
 import com.uci.dao.repository.XMessageRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,16 +1,10 @@
 package com.uci.outbound.consumers;
 
-import com.samagra.adapter.provider.factory.IProvider;
-import com.samagra.adapter.provider.factory.ProviderFactory;
-import messagerosa.core.model.XMessage;
-import messagerosa.xml.XMessageParser;
+import com.uci.adapter.provider.factory.ProviderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.ByteArrayInputStream;
 
 @Slf4j
 @Service
