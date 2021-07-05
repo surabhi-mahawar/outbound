@@ -9,7 +9,7 @@
 		<version>2.2.7.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.samagra</groupId>
+	<groupId>com.uci</groupId>
 	<artifactId>outbound</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>outbound</name>
@@ -60,7 +60,7 @@
 			<artifactId>httpclient</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.samagra</groupId>
+			<groupId>com.uci</groupId>
 			<artifactId>adapter</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
@@ -81,7 +81,7 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.samagra</groupId>
+			<groupId>com.uci</groupId>
 			<artifactId>adapter</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
