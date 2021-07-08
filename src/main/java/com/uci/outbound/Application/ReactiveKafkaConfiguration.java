@@ -36,7 +36,7 @@ public class ReactiveKafkaConfiguration {
     }
 
     @Bean
-    ReceiverOptions<String, String> kafkaReceiverOptions(@Value("${kafka.topic.in}") String[] inTopicName) {
+    ReceiverOptions<String, String> kafkaReceiverOptions(@Value("${outbound}") String[] inTopicName) {
         ReceiverOptions<String, String> options = ReceiverOptions.create(kafkaConsumerConfiguration());
         return options.subscription(Arrays.asList(inTopicName))
             .withKeyDeserializer(new JsonDeserializer<>())
