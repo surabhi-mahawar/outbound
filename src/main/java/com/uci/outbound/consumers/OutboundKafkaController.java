@@ -51,7 +51,12 @@ public class OutboundKafkaController {
                                 @Override
                                 public void accept(XMessage xMessage) {
                                     XMessageDAO dao = XMessageDAOUtills.convertXMessageToDAO(xMessage);
-                                    xMessageRepo.save(dao);
+                                    xMessageRepo.insert(dao).subscribe(new Consumer<XMessageDAO>() {
+                                        @Override
+                                        public void accept(XMessageDAO xMessageDAO) {
+                                            log.debug("XMessage Object saved is with sent user ID >> "+ xMessageDAO.getUserId());
+                                        }
+                                    });
                                 }
                             });
                         } catch (Exception e) {
