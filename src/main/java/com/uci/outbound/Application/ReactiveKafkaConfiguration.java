@@ -21,8 +21,7 @@ public class ReactiveKafkaConfiguration {
     @Value("${spring.kafka.bootstrap-servers}")
     private String BOOTSTRAP_SERVERS;
 
-    private String GROUP_ID = "ReactiveGroup";
-
+    private String GROUP_ID = "outbound";
 
     @Bean
     Map<String, Object> kafkaConsumerConfiguration() {
@@ -39,8 +38,8 @@ public class ReactiveKafkaConfiguration {
     ReceiverOptions<String, String> kafkaReceiverOptions(@Value("${outbound}") String[] inTopicName) {
         ReceiverOptions<String, String> options = ReceiverOptions.create(kafkaConsumerConfiguration());
         return options.subscription(Arrays.asList(inTopicName))
-            .withKeyDeserializer(new JsonDeserializer<>())
-            .withValueDeserializer(new JsonDeserializer());
+                .withKeyDeserializer(new JsonDeserializer<>())
+                .withValueDeserializer(new JsonDeserializer());
     }
 
     @Bean

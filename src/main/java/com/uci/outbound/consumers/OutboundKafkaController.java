@@ -38,25 +38,25 @@ public class OutboundKafkaController {
                 .doOnNext(new Consumer<ReceiverRecord<String, String>>() {
                     @Override
                     public void accept(ReceiverRecord<String, String> msg) {
-                        log.info("Outbound Message rec: {}", msg);
                         XMessage currentXmsg = null;
                         try {
-                            log.debug(msg.value());
                             currentXmsg = XMessageParser.parse(new ByteArrayInputStream(msg.value().getBytes()));
                             String channel = currentXmsg.getChannelURI();
                             String provider = currentXmsg.getProviderURI();
-                            log.info("next msg {}", currentXmsg.getPayload().getText());
                             IProvider iprovider = factoryProvider.getProvider(provider, channel);
                             iprovider.processOutBoundMessageF(currentXmsg).subscribe(new Consumer<XMessage>() {
                                 @Override
                                 public void accept(XMessage xMessage) {
                                     XMessageDAO dao = XMessageDAOUtills.convertXMessageToDAO(xMessage);
-                                    xMessageRepo.insert(dao).subscribe(new Consumer<XMessageDAO>() {
-                                        @Override
-                                        public void accept(XMessageDAO xMessageDAO) {
-                                            log.debug("XMessage Object saved is with sent user ID >> "+ xMessageDAO.getUserId());
-                                        }
-                                    });
+                                    xMessageRepo
+                                            .insert(dao)
+                                            .subscribe(new Consumer<XMessageDAO>() {
+                                                @Override
+                                                public void accept(XMessageDAO xMessageDAO) {
+                                                    log.info("XMessage Object saved is with sent user ID >> " + xMessageDAO.getUserId());
+                                                }
+                                            })
+                                            .dispose();
                                 }
                             });
                         } catch (Exception e) {
