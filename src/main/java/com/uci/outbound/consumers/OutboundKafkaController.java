@@ -7,7 +7,7 @@ import com.uci.dao.repository.XMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import messagerosa.core.model.XMessage;
-import com.uci.dao.utils.XMessageDAOUtills;
+import com.uci.dao.utils.XMessageDAOUtils;
 import messagerosa.xml.XMessageParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -47,7 +47,7 @@ public class OutboundKafkaController {
                             iprovider.processOutBoundMessageF(currentXmsg).subscribe(new Consumer<XMessage>() {
                                 @Override
                                 public void accept(XMessage xMessage) {
-                                    XMessageDAO dao = XMessageDAOUtills.convertXMessageToDAO(xMessage);
+                                    XMessageDAO dao = XMessageDAOUtils.convertXMessageToDAO(xMessage);
                                     xMessageRepo
                                             .insert(dao)
                                             .subscribe(new Consumer<XMessageDAO>() {
