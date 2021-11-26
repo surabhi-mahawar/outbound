@@ -2,6 +2,7 @@ package com.uci.outbound.Application;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
@@ -14,6 +15,7 @@ import com.uci.dao.service.HealthService;
 @EnableKafka
 @EnableAsync
 @EnableReactiveCassandraRepositories("com.uci.dao")
+@EntityScan("com.uci.dao")
 @PropertySource("application-adapter.properties")
 @PropertySource("application-messagerosa.properties")
 @PropertySource("application.properties")

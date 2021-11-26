@@ -32,6 +32,12 @@ public class OutboundKafkaController {
     @Autowired
     private XMessageRepository xMessageRepo;
 
+    private Consumer<Throwable> genericError(String s) {
+        return c -> {
+            log.error(s + "::" + c.getMessage());
+        };
+    }
+
     @EventListener(ApplicationStartedEvent.class)
     public void onMessage() {
         reactiveKafkaReceiver
@@ -50,13 +56,14 @@ public class OutboundKafkaController {
                                     XMessageDAO dao = XMessageDAOUtils.convertXMessageToDAO(xMessage);
                                     xMessageRepo
                                             .insert(dao)
+                                            .doOnError(genericError("Error in inserting current message"))
                                             .subscribe(new Consumer<XMessageDAO>() {
                                                 @Override
                                                 public void accept(XMessageDAO xMessageDAO) {
+                                                    log.info("Message Persisted in Cassandra");
                                                     log.info("XMessage Object saved is with sent user ID >> " + xMessageDAO.getUserId());
                                                 }
-                                            })
-                                            .dispose();
+                                            });
                                 }
                             });
                         } catch (Exception e) {
