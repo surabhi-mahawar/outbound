@@ -55,8 +55,7 @@ public class OutboundKafkaController {
                                                 public void accept(XMessageDAO xMessageDAO) {
                                                     log.info("XMessage Object saved is with sent user ID >> " + xMessageDAO.getUserId());
                                                 }
-                                            })
-                                            .dispose();
+                                            });
                                 }
                             });
                         } catch (Exception e) {
