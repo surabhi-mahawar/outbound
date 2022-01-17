@@ -46,11 +46,9 @@ public class OutboundKafkaController {
                 .doOnNext(new Consumer<ReceiverRecord<String, String>>() {
                     @Override
                     public void accept(ReceiverRecord<String, String> msg) {
-			log.info("kafka message receieved");                    	
-			Span rootSpan = tracer.spanBuilder("outbound-processMessage").startSpan();
-                    	Context currentContext = Context.current();
-                        XMessage currentXmsg = null;
-                        try(Scope scope = rootSpan.makeCurrent()) {
+                    	log.info("kafka message receieved");                    	
+                    	XMessage currentXmsg = null;
+                        try {
                             currentXmsg = XMessageParser.parse(new ByteArrayInputStream(msg.value().getBytes()));
                             String channel = currentXmsg.getChannelURI();
                             String provider = currentXmsg.getProviderURI();
@@ -65,7 +63,6 @@ public class OutboundKafkaController {
                                                 @Override
                                                 public void accept(XMessageDAO xMessageDAO) {
                                                     log.info("XMessage Object saved is with sent user ID >> " + xMessageDAO.getUserId());
-                                                    rootSpan.end();
                                                 }
                                             });
                                 }
