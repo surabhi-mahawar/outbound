@@ -44,6 +44,7 @@ public class OutboundKafkaController {
                 .doOnNext(new Consumer<ReceiverRecord<String, String>>() {
                     @Override
                     public void accept(ReceiverRecord<String, String> msg) {
+                    	log.info("message received");
                         XMessage currentXmsg = null;
                         try {
                             currentXmsg = XMessageParser.parse(new ByteArrayInputStream(msg.value().getBytes()));
