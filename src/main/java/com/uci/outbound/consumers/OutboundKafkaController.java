@@ -53,10 +53,11 @@ public class OutboundKafkaController {
                     public void accept(ConsumerRecord<String, String> msg) {
                     	log.info("kafka message receieved");                    	
                     	XMessage currentXmsg = null;
-                    	Context extractedContext = GlobalOpenTelemetry.getPropagators().getTextMapPropagator().extract(Context.current(), msg.headers(), TextMapGetterAdapter.getter);
-                        log.info("Opentelemetry extracted context : "+extractedContext);
+//                    	Context extractedContext = GlobalOpenTelemetry.getPropagators().getTextMapPropagator().extract(Context.current(), msg.headers(), TextMapGetterAdapter.getter);
+//                        log.info("Opentelemetry extracted context : "+extractedContext);
                         
-                		try (Scope scope = extractedContext.makeCurrent()) {
+//                		try (Scope scope = extractedContext.makeCurrent()) {
+                    	try {
                             currentXmsg = XMessageParser.parse(new ByteArrayInputStream(msg.value().getBytes()));
                             String channel = currentXmsg.getChannelURI();
                             String provider = currentXmsg.getProviderURI();
