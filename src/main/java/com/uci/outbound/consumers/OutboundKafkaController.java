@@ -34,6 +34,7 @@ public class OutboundKafkaController {
 
     @EventListener(ApplicationStartedEvent.class)
     public void onMessage() {
+    	
         reactiveKafkaReceiver
                 .doOnNext(new Consumer<ReceiverRecord<String, String>>() {
                     @Override
