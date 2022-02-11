@@ -34,10 +34,12 @@ public class OutboundKafkaController {
 
     @EventListener(ApplicationStartedEvent.class)
     public void onMessage() {
+    	
         reactiveKafkaReceiver
                 .doOnNext(new Consumer<ReceiverRecord<String, String>>() {
                     @Override
                     public void accept(ReceiverRecord<String, String> msg) {
+                    	log.info("kafka message receieved");
                         XMessage currentXmsg = null;
                         try {
                             currentXmsg = XMessageParser.parse(new ByteArrayInputStream(msg.value().getBytes()));
@@ -55,8 +57,7 @@ public class OutboundKafkaController {
                                                 public void accept(XMessageDAO xMessageDAO) {
                                                     log.info("XMessage Object saved is with sent user ID >> " + xMessageDAO.getUserId());
                                                 }
-                                            })
-                                            .dispose();
+                                            });
                                 }
                             });
                         } catch (Exception e) {
