@@ -1,5 +1,6 @@
 package com.uci.outbound.Application;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,9 @@ import com.uci.dao.service.HealthService;
 @SpringBootApplication
 @ComponentScan(basePackages = {"com.uci.outbound", "com.uci.adapter", "com.uci.utils"})
 public class Outbound {
+	@Value("${spring.redis.database}")
+	private String redisDb;
+	
 	public static void main(String[] args) {
 		SpringApplication.run(Outbound.class, args);
 	}
@@ -40,6 +44,8 @@ public class Outbound {
 	      = new JedisConnectionFactory();
 //	    jedisConFactory.setHostName("127.0.0.1");
 //	    jedisConFactory.setPort(6379);
+	    Integer dbIndex = Integer.parseInt(redisDb);
+	    jedisConFactory.setDatabase(dbIndex);
 	    return jedisConFactory;
 	}
 
