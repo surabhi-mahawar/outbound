@@ -60,10 +60,10 @@ public class OutboundKafkaController {
                                     
                                     try {
                                     	hashOperations = redisTemplate.opsForHash();
-                                        hashOperations.put("XMessageDAO", xMessage.getTo().getUserID(), dao);
+                                        hashOperations.put(redisKeyWithPrefix("XMessageDAO"), redisKeyWithPrefix(xMessage.getTo().getUserID()), dao);
                                     } catch (Exception e) {
                                     	/* If redis cache not able to set, delete cache */
-                                    	hashOperations.delete("XMessageDAO", xMessage.getTo().getUserID());
+                                    	hashOperations.delete(redisKeyWithPrefix("XMessageDAO"), redisKeyWithPrefix(xMessage.getTo().getUserID()));
                                     	
                                     	log.info("Exception in redis put: "+e.getMessage());
                                     	e.printStackTrace();
@@ -93,5 +93,9 @@ public class OutboundKafkaController {
                     }
                 })
                 .subscribe();
+    }
+    
+    private String redisKeyWithPrefix(String key) {
+    	return System.getenv("ENV")+"-"+key;
     }
 }
