@@ -12,6 +12,8 @@ import messagerosa.xml.XMessageParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.kafka.receiver.ReceiverRecord;
@@ -31,6 +33,11 @@ public class OutboundKafkaController {
 
     @Autowired
     private XMessageRepository xMessageRepo;
+    
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+    
+    private HashOperations hashOperations; //to access Redis cache
 
     @EventListener(ApplicationStartedEvent.class)
     public void onMessage() {
@@ -50,6 +57,18 @@ public class OutboundKafkaController {
                                 @Override
                                 public void accept(XMessage xMessage) {
                                     XMessageDAO dao = XMessageDAOUtils.convertXMessageToDAO(xMessage);
+                                    
+                                    try {
+                                    	hashOperations = redisTemplate.opsForHash();
+                                        hashOperations.put("XMessageDAO", xMessage.getTo().getUserID(), dao);
+                                    } catch (Exception e) {
+                                    	/* If redis cache not able to set, delete cache */
+                                    	hashOperations.delete("XMessageDAO", xMessage.getTo().getUserID());
+                                    	
+                                    	log.info("Exception in redis put: "+e.getMessage());
+                                    	e.printStackTrace();
+                                    }
+                                    
                                     xMessageRepo
                                             .insert(dao)
                                             .subscribe(new Consumer<XMessageDAO>() {
