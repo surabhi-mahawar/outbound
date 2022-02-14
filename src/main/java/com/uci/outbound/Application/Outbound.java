@@ -29,6 +29,12 @@ public class Outbound {
 	@Value("${spring.redis.database}")
 	private String redisDb;
 	
+	@Value("${spring.redis.host}")
+	private String redisHost;
+	
+	@Value("${spring.redis.port}")
+	private String redisPort;
+	
 	public static void main(String[] args) {
 		SpringApplication.run(Outbound.class, args);
 	}
@@ -40,10 +46,15 @@ public class Outbound {
 
 	@Bean
 	JedisConnectionFactory jedisConnectionFactory() {
+		System.out.println("Redis env host: "+System.getenv("REDIS_HOST"));
+		System.out.println("Redis property host @value: "+System.getProperty("redisost"));
+		System.out.println("Redis property host: "+redisHost);
+		
 	    JedisConnectionFactory jedisConFactory
 	      = new JedisConnectionFactory();
-//	    jedisConFactory.setHostName("127.0.0.1");
-//	    jedisConFactory.setPort(6379);
+	    jedisConFactory.setHostName(redisHost);
+	    Integer port = Integer.parseInt(redisPort);
+	    jedisConFactory.setPort(port);
 	    Integer dbIndex = Integer.parseInt(redisDb);
 	    jedisConFactory.setDatabase(dbIndex);
 		jedisConFactory.getPoolConfig().setMaxIdle(30);
