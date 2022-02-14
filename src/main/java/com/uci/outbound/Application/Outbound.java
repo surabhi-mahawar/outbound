@@ -46,9 +46,7 @@ public class Outbound {
 
 	@Bean
 	JedisConnectionFactory jedisConnectionFactory() {
-		System.out.println("Redis env host: "+System.getenv("REDIS_HOST"));
-		System.out.println("Redis property host @value: "+System.getProperty("redisost"));
-		System.out.println("Redis property host: "+redisHost);
+		System.out.println("Redis property host: "+redisHost+", port: "+redisPort+", db index: "+redisDb);
 		
 	    JedisConnectionFactory jedisConFactory
 	      = new JedisConnectionFactory();
