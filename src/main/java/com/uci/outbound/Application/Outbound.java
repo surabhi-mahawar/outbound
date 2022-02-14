@@ -46,6 +46,8 @@ public class Outbound {
 //	    jedisConFactory.setPort(6379);
 	    Integer dbIndex = Integer.parseInt(redisDb);
 	    jedisConFactory.setDatabase(dbIndex);
+		jedisConFactory.getPoolConfig().setMaxIdle(30);
+		jedisConFactory.getPoolConfig().setMinIdle(10);
 	    return jedisConFactory;
 	}
 
@@ -55,7 +57,7 @@ public class Outbound {
 	    template.setConnectionFactory(jedisConnectionFactory());
 	    template.setKeySerializer(new StringRedisSerializer());
 	    template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-//	    template.setEnableTransactionSupport(true);
+	    template.setEnableTransactionSupport(true);
 	    return template;
 	}
 }
